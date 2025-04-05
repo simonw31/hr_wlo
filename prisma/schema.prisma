@@ -1,0 +1,156 @@
+datasource db {
+  provider = "postgresql" // ou mysql, sqlite...
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum ContractStatus {
+  EN_CONTRAT
+  DEMISSION
+  AUTRE
+}
+
+enum Sex {
+  Homme
+  Femme
+}
+
+enum DayOfWeek {
+  Lundi
+  Mardi
+  Mercredi
+  Jeudi
+  Vendredi
+  Samedi
+  Dimanche
+}
+
+// ====================
+// Modèles existants
+// ====================
+model Employee {
+  id                      String   @id @default(cuid())
+  lastName                String   @default("Non défini")
+  firstName               String   @default("Non défini")
+  matricule               Int?     @unique
+  dateOfBirth             DateTime?
+  sex                     Sex?
+  nationality             String?
+  address                 String?
+  address2                String?
+  postalCode              String?
+  city                    String?
+  iban                    String?
+  bic                     String?
+  socialSecurityNumber    String?
+  emergencyContactName    String?
+  emergencyContactPhone   String?
+  transportMeans          String?
+  photoUrl                String?
+
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  contracts                Contract[]
+  timeRecords             TimeRecord[]
+  shifts                  Shift[] 
+}
+
+model Contract {
+  id              String               @id @default(cuid())
+  contractType    String?             // "CDI", "CDD", "Autre"
+  role            String?             // "Employé polyvalent", "Manager", etc.
+  hoursPerWeek    Int?
+  status          ContractStatus?
+  resignationDate DateTime?
+  endDate         DateTime?           // En cas de CDD, obligatoire
+
+  employeeId      String              
+  employee        Employee            @relation(fields: [employeeId], references: [id])
+
+  availability    AvailabilityInterval[]
+
+  amendments      Amendment[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model AvailabilityInterval {
+  id         String    @id @default(cuid())
+  day        DayOfWeek
+  allDay     Boolean
+  startTime  String?
+  endTime    String?
+
+  contractId String
+  contract   Contract   @relation(fields: [contractId], references: [id])
+}
+
+model TimeRecord {
+  id         String   @id @default(cuid())
+  date       DateTime
+  checkIn    DateTime
+  checkOut   DateTime?
+
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// ====================
+// Nouveaux modèles
+// ====================
+
+// 1. Table Shift
+model Shift {
+  id         String   @id @default(cuid())
+  date       DateTime              // Jour du shift
+  startHour  Float                 // Heure de début (ex: 8.0, 8.5, etc.)
+  endHour    Float                 // Heure de fin
+  shiftType  String?               // Ex: "Salle", "Cuisine", etc.
+
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// 2. Table DayLock (Option 2)
+model DayLock {
+  id      String   @id @default(cuid())
+  date    DateTime @unique           // On stocke la date "yyyy-MM-dd"
+  locked  Boolean  @default(false)   // true si la journée est verrouillée
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PayPeriod {
+  id        String   @id @default(uuid())
+  startDate DateTime
+  endDate   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  salaryMonth String @default("inconnu")   // Mois auquel la paie est rattachée (ex: "avril")
+}
+
+model Amendment {
+  id            String   @id @default(cuid())
+  contractId    String
+  contract      Contract @relation(fields: [contractId], references: [id])
+
+  startDate     DateTime
+  endDate       DateTime?  // null si avenant permanent ?
+  newHoursPerWeek Int?
+
+  isTemporary   Boolean    // true = avenant temporaire
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
