@@ -2,18 +2,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAmendment, getAmendmentsByContract } from "@/lib/services/amendmentService";
 
-interface RouteContext {
-  params: {
-    contractId: string;
-  };
-}
-
 export async function GET(
   request: NextRequest,
-  context: RouteContext
+  { params }: { params: { contractId: string } }
 ): Promise<NextResponse> {
   try {
-    const { contractId } = context.params;
+    const { contractId } = params;
     const amendments = await getAmendmentsByContract(contractId);
     return NextResponse.json(amendments, { status: 200 });
   } catch (error) {
@@ -25,10 +19,10 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  context: RouteContext
+  { params }: { params: { contractId: string } }
 ): Promise<NextResponse> {
   try {
-    const { contractId } = context.params;
+    const { contractId } = params;
     const body = await request.json();
     // Attendu : startDate, endDate (optionnel), newHoursPerWeek, isTemporary
     const { startDate, endDate, newHoursPerWeek, isTemporary } = body;

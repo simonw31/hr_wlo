@@ -1,5 +1,5 @@
 // src/app/dashboard/layout.tsx
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/authOptions";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import Sidebar from "./Sidebar";
@@ -24,10 +24,7 @@ export default async function DashboardLayout({
       </div>
       <main className="flex-1 p-6">
         <header className="mb-6 flex items-center justify-between">
-          {/* Titre à gauche */}
           <h1 className="text-2xl font-bold">Dashboard</h1>
-
-          {/* Barre de recherche + icône notifications à droite */}
           <div className="flex items-center gap-4">
             <IntelligentSearchBar />
             <NotificationsMenu />
