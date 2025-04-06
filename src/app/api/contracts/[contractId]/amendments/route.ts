@@ -4,11 +4,13 @@ import { createAmendment, getAmendmentsByContract } from "@/lib/services/amendme
 
 export async function GET(
   request: NextRequest,
-  context: { params: { contractId: string } }
+  context: { params: { contractId: string | string[] } }
 ): Promise<NextResponse> {
   try {
     const { contractId } = context.params;
-    const amendments = await getAmendmentsByContract(contractId);
+    // Si contractId est un tableau, on prend le premier élément
+    const contractIdStr = Array.isArray(contractId) ? contractId[0] : contractId;
+    const amendments = await getAmendmentsByContract(contractIdStr);
     return NextResponse.json(amendments, { status: 200 });
   } catch (error) {
     const message =
@@ -19,10 +21,11 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  context: { params: { contractId: string } }
+  context: { params: { contractId: string | string[] } }
 ): Promise<NextResponse> {
   try {
     const { contractId } = context.params;
+    const contractIdStr = Array.isArray(contractId) ? contractId[0] : contractId;
     const body = await request.json();
     // Attendu : startDate, endDate (optionnel), newHoursPerWeek, isTemporary
     const { startDate, endDate, newHoursPerWeek, isTemporary } = body;
@@ -33,7 +36,7 @@ export async function POST(
       );
     }
     const amendment = await createAmendment({
-      contractId,
+      contractId: contractIdStr,
       startDate: new Date(startDate),
       endDate: endDate ? new Date(endDate) : null,
       newHoursPerWeek: newHoursPerWeek ? parseInt(newHoursPerWeek, 10) : null,
