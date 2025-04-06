@@ -9,8 +9,11 @@ import { prisma } from "@/lib/prisma";
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+  context: unknown
+): Promise<NextResponse> {
+  // Extraction du paramètre depuis le contexte
+  const { params } = context as { params: { id: string } };
+
   try {
     if (params.id !== "create") {
       return NextResponse.json(
@@ -60,10 +63,12 @@ export async function POST(
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+  context: unknown
+): Promise<NextResponse> {
+  const { params } = context as { params: { id: string } };
+
   try {
-    // ... (votre code existant)
+    // Exemple de code existant pour PUT
     const { startHour, endHour } = await request.json();
     const recordId = params.id;
 
@@ -112,10 +117,11 @@ export async function PUT(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+  context: unknown
+): Promise<NextResponse> {
+  const { params } = context as { params: { id: string } };
+
   try {
-    // ... (votre code existant)
     const recordId = params.id;
     const existing = await prisma.timeRecord.findUnique({ where: { id: recordId } });
     if (!existing) {
