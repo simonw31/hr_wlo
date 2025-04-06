@@ -5,8 +5,8 @@ export const dynamicParams = true;
 import { prisma } from "@/lib/prisma";
 import ContractEditForm from "./ContractEditForm";
 
-// Définition d'un utilitaire qui transforme T en Promise<T> si ce n'est pas déjà une promesse
-type Asyncify<T> = T extends Promise<any> ? T : Promise<T>;
+// Utilitaire pour forcer T à être une promesse, sans utiliser "any"
+type Asyncify<T> = T extends Promise<unknown> ? T : Promise<T>;
 
 // On définit nos props en forçant params à être asynchrone
 type PageProps = {
