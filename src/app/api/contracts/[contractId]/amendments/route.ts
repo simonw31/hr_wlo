@@ -4,10 +4,10 @@ import { createAmendment, getAmendmentsByContract } from "@/lib/services/amendme
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { contractId: string } }
+  context: { params: { contractId: string } }
 ): Promise<NextResponse> {
   try {
-    const { contractId } = params;
+    const { contractId } = context.params;
     const amendments = await getAmendmentsByContract(contractId);
     return NextResponse.json(amendments, { status: 200 });
   } catch (error) {
@@ -19,10 +19,10 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { contractId: string } }
+  context: { params: { contractId: string } }
 ): Promise<NextResponse> {
   try {
-    const { contractId } = params;
+    const { contractId } = context.params;
     const body = await request.json();
     // Attendu : startDate, endDate (optionnel), newHoursPerWeek, isTemporary
     const { startDate, endDate, newHoursPerWeek, isTemporary } = body;
