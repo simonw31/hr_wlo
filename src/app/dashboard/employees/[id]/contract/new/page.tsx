@@ -6,10 +6,17 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import ContractEditForm from "../edit/ContractEditForm";
 
-// On ne précise pas explicitement le type de props pour laisser Next.js inférer PageProps
+// Définition d'un type pour les disponibilités du contrat
+interface ContractAvailability {
+  id: string;
+  day: string;
+  allDay: boolean;
+  startTime: string;
+  endTime: string;
+}
+
 export default async function NewContractPage(props: { params: unknown }) {
-  // On transforme props.params en une promesse puis on attend sa résolution.
-  // Si props.params est déjà un objet, Promise.resolve le renverra tel quel.
+  // On attend la résolution de props.params
   const resolvedParams = await Promise.resolve(props.params) as { id: string };
   const employeeId = resolvedParams.id;
 
@@ -30,7 +37,7 @@ export default async function NewContractPage(props: { params: unknown }) {
     status: "EN_CONTRAT", // par défaut
     resignationDate: "",
     endDate: "", // pour les CDD
-    availability: [] as any, // typage de l'array si besoin
+    availability: [] as ContractAvailability[], // typé comme un tableau de ContractAvailability
   };
 
   return (
