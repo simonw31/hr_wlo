@@ -5,10 +5,13 @@ export const dynamicParams = true;
 import { prisma } from "@/lib/prisma";
 import ContractEditForm from "./ContractEditForm";
 
-// Déclarez le type des props de page en précisant que params est un objet synchronisé
-interface PageProps {
-  params: { id: string };
-}
+// Définition d'un utilitaire qui transforme T en Promise<T> si ce n'est pas déjà une promesse
+type Asyncify<T> = T extends Promise<any> ? T : Promise<T>;
+
+// On définit nos props en forçant params à être asynchrone
+type PageProps = {
+  params: Asyncify<{ id: string }>;
+};
 
 interface PrismaAvailability {
   id: string;
@@ -49,11 +52,11 @@ interface EditContract {
 }
 
 export default async function ContractEditPage({ params }: PageProps) {
-  // Ici, params est un objet synchronisé
-  const { id } = params;
+  // Ici, params est forcé en Promise<{ id: string }>, ce qui satisfait la contrainte
+  const { id } = await params;
   const employeeId = id;
 
-  // Récupération du contrat via employeeId avec findFirst
+  // Récupération du contrat via employeeId
   const contract: PrismaContract | null = await prisma.contract.findFirst({
     where: { employeeId },
     include: { availability: true },
@@ -87,7 +90,7 @@ export default async function ContractEditPage({ params }: PageProps) {
       status: "EN_CONTRAT",
       resignationDate: "",
       endDate: "",
-      availability: [],
+      availability: [] as ContractAvailability[],
     };
   }
 
