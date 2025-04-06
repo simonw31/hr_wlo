@@ -1,25 +1,26 @@
-export const runtime = "nodejs"
-export const dynamic = "force-dynamic"
-export const dynamicParams = true
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const dynamicParams = true;
 
-import { prisma } from "@/lib/prisma"
-import { notFound } from "next/navigation"
-import ContractEditForm from "../edit/ContractEditForm"
+import { prisma } from "@/lib/prisma";
+import { notFound } from "next/navigation";
+import ContractEditForm from "../edit/ContractEditForm";
 
 export default async function NewContractPage({
   params,
 }: {
-  params: { id: string }
+  params: { id: string } | Promise<{ id: string }>;
 }) {
-  // On extrait l'ID de l'employé
-  const employeeId = params.id
+  // Attendre que params soit résolu
+  const resolvedParams = await params;
+  const employeeId = resolvedParams.id;
 
   // Optionnel : vérifier si l'employé existe
   const employee = await prisma.employee.findUnique({
     where: { id: employeeId },
-  })
+  });
   if (!employee) {
-    notFound()
+    notFound();
   }
 
   // On crée un objet "contrat" par défaut (vide)
@@ -32,12 +33,9 @@ export default async function NewContractPage({
     resignationDate: "",
     endDate: "", // Ajouté pour les CDD
     availability: [], // aucune disponibilité par défaut
-  }
+  };
 
   return (
-    <ContractEditForm
-      employeeId={employeeId}
-      contract={newContract}
-    />
-  )
+    <ContractEditForm employeeId={employeeId} contract={newContract} />
+  );
 }
