@@ -1,9 +1,6 @@
+// src/app/api/employees/[id]/contract/route.ts
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-
-interface RouteParams {
-  id: string;
-}
 
 interface AvailabilityInput {
   day: string;
@@ -24,8 +21,11 @@ interface ContractInput {
 
 export async function POST(
   request: Request,
-  { params }: { params: RouteParams }
+  context: unknown
 ): Promise<NextResponse> {
+  // Cast du contexte pour extraire params
+  const { params } = context as { params: { id: string } };
+
   try {
     const id = params.id;
     const body = (await request.json()) as ContractInput;
