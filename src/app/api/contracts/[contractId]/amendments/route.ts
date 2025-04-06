@@ -2,16 +2,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAmendment, getAmendmentsByContract } from "@/lib/services/amendmentService";
 
-// On définit un type qui autorise d'autres propriétés dans le contexte
-type RouteContext = { params: { contractId: string } } & Record<string, unknown>;
-
 export async function GET(
   request: NextRequest,
-  context: RouteContext
+  context: unknown
 ): Promise<NextResponse> {
+  const { params } = context as { params: { contractId: string } };
   try {
-    const { contractId } = context.params;
-    const amendments = await getAmendmentsByContract(contractId);
+    const amendments = await getAmendmentsByContract(params.contractId);
     return NextResponse.json(amendments, { status: 200 });
   } catch (error) {
     const message =
@@ -24,10 +21,10 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  context: RouteContext
+  context: unknown
 ): Promise<NextResponse> {
+  const { params } = context as { params: { contractId: string } };
   try {
-    const { contractId } = context.params;
     const body = await request.json();
     const { startDate, endDate, newHoursPerWeek, isTemporary } = body;
     if (!startDate || typeof isTemporary !== "boolean") {
@@ -37,7 +34,7 @@ export async function POST(
       );
     }
     const amendment = await createAmendment({
-      contractId,
+      contractId: params.contractId,
       startDate: new Date(startDate),
       endDate: endDate ? new Date(endDate) : null,
       newHoursPerWeek: newHoursPerWeek ? parseInt(newHoursPerWeek, 10) : null,
