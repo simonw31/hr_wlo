@@ -6,7 +6,6 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import ContractEditForm from "../edit/ContractEditForm";
 
-// Définition d'un type pour les disponibilités du contrat
 interface ContractAvailability {
   id: string;
   day: string;
@@ -15,12 +14,18 @@ interface ContractAvailability {
   endTime: string;
 }
 
-export default async function NewContractPage(props: { params: unknown }) {
-  // On attend la résolution de props.params
-  const resolvedParams = await Promise.resolve(props.params) as { id: string };
+// Ici, nous imposons que props.params est une Promise qui résout un objet contenant { id: string }.
+// Cela satisfait la contrainte PageProps (qui exige un type compatible avec Promise<any>).
+export default async function NewContractPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  // On attend que params se résolve
+  const resolvedParams = await params;
   const employeeId = resolvedParams.id;
 
-  // Vérification que l'employé existe
+  // Vérifier que l'employé existe
   const employee = await prisma.employee.findUnique({
     where: { id: employeeId },
   });
@@ -37,7 +42,7 @@ export default async function NewContractPage(props: { params: unknown }) {
     status: "EN_CONTRAT", // par défaut
     resignationDate: "",
     endDate: "", // pour les CDD
-    availability: [] as ContractAvailability[], // typé comme un tableau de ContractAvailability
+    availability: [] as ContractAvailability[], // tableau vide typé
   };
 
   return (
