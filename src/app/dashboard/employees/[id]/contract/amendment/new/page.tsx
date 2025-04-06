@@ -8,12 +8,9 @@ import AmendmentEditForm from "../../edit/AmendmentEditForm";
 
 export default async function NewAmendmentPage({
   params,
-}: {
-  params: { id: string } | Promise<{ id: string }>;
-}) {
-  // Attendre la résolution de params s'il s'agit d'une promesse
-  const resolvedParams = await params;
-  const employeeId = resolvedParams.id;
+}: { params: any }) {
+  // Ici, on suppose que params est déjà résolu et possède une propriété id
+  const employeeId = params.id;
 
   // Vérification que le contrat existe
   const contract = await prisma.contract.findFirst({
