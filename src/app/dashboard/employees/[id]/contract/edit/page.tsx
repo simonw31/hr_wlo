@@ -1,17 +1,13 @@
-// /app/dashboard/employees/[id]/contract/edit/page.tsx
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const dynamicParams = true;
 
 import { prisma } from "@/lib/prisma";
-// Suppression de l'import de notFound puisqu'il n'est pas utilisé
 import ContractEditForm from "./ContractEditForm";
 
-// Définition explicite du contexte de page
-interface PageContext {
-  params: {
-    id: string;
-  };
+// Déclarez le type des props de page en précisant que params est une Promise
+interface PageProps {
+  params: Promise<{ id: string }>;
 }
 
 interface PrismaAvailability {
@@ -33,7 +29,6 @@ interface PrismaContract {
   availability: PrismaAvailability[];
 }
 
-// On définit un type local pour correspondre aux props attendues par le formulaire
 interface ContractAvailability {
   id: string;
   day: string;
@@ -53,9 +48,12 @@ interface EditContract {
   availability: ContractAvailability[];
 }
 
-export default async function ContractEditPage(context: PageContext) {
-  // Extraction de l'ID de l'employé depuis le contexte
-  const employeeId = context.params.id;
+export default async function ContractEditPage({
+  params,
+}: PageProps) {
+  // Attendre la résolution de params pour obtenir l'objet { id: string }
+  const { id } = await params;
+  const employeeId = id;
 
   // Récupération du contrat via employeeId avec findFirst
   const contract: PrismaContract | null = await prisma.contract.findFirst({
