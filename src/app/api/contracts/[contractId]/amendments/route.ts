@@ -4,7 +4,7 @@ import { createAmendment, getAmendmentsByContract } from "@/lib/services/amendme
 
 export async function GET(
   request: NextRequest,
-  context: { params: { contractId: string } }
+  context: { params: Record<string, string> }
 ): Promise<NextResponse> {
   try {
     const { contractId } = context.params;
@@ -12,19 +12,20 @@ export async function GET(
     return NextResponse.json(amendments, { status: 200 });
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Erreur inconnue lors de la récupération.";
+      error instanceof Error
+        ? error.message
+        : "Erreur inconnue lors de la récupération.";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
 export async function POST(
   request: NextRequest,
-  context: { params: { contractId: string } }
+  context: { params: Record<string, string> }
 ): Promise<NextResponse> {
   try {
     const { contractId } = context.params;
     const body = await request.json();
-    // Attendu : startDate, endDate (optionnel), newHoursPerWeek, isTemporary
     const { startDate, endDate, newHoursPerWeek, isTemporary } = body;
     if (!startDate || typeof isTemporary !== "boolean") {
       return NextResponse.json(
@@ -42,7 +43,9 @@ export async function POST(
     return NextResponse.json(amendment, { status: 201 });
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Erreur inconnue lors de la création.";
+      error instanceof Error
+        ? error.message
+        : "Erreur inconnue lors de la création.";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
