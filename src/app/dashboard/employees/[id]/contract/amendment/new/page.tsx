@@ -9,10 +9,11 @@ import AmendmentEditForm from "../../edit/AmendmentEditForm";
 export default async function NewAmendmentPage({
   params,
 }: {
-  params: { id: string }
+  params: { id: string } | Promise<{ id: string }>;
 }) {
-  // Ici, params.id correspond à l'ID du contrat pour lequel on veut créer un avenant.
-  const employeeId = params.id;
+  // Attendre la résolution de params s'il s'agit d'une promesse
+  const resolvedParams = await params;
+  const employeeId = resolvedParams.id;
 
   // Vérification que le contrat existe
   const contract = await prisma.contract.findFirst({
@@ -22,5 +23,5 @@ export default async function NewAmendmentPage({
     notFound();
   }
 
-  return <AmendmentEditForm contractId={contract.id} />;
+  return <AmendmentEditForm contractId={contract.id} employeeId={employeeId} />;
 }
