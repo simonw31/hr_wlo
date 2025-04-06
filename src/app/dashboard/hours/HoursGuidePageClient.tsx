@@ -59,7 +59,7 @@ export default function HoursGuidePageClient({
 
   // Callback pour gérer le clic sur un shift
   // Remplace la déclaration actuelle par :
-  function handleShiftClick(shift: Shift, _: React.MouseEvent) {
+  function handleShiftClick(shift: Shift) {
     console.log("Shift cliqué :", shift);
     setEditingShift(shift);
   }
@@ -168,7 +168,7 @@ export default function HoursGuidePageClient({
                 employees={employees}
                 plannedShifts={dailyPlanned}
                 realShifts={dailyReal}
-                onShiftClick={(shift, _e) => handleShiftClick(shift, _e)}
+                onShiftClick={(shift) => handleShiftClick(shift)}
               />
             )}
           </CardContent>

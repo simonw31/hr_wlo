@@ -25,28 +25,25 @@ type PlanningGridProps = {
   dateKey: string;
   employees: Employee[];
   shifts: Shift[];
+  activeShift: Shift | null;
   setShifts: (shifts: Shift[] | ((prev: Shift[]) => Shift[])) => void;
   onShiftClick: (shiftId: string, e: React.MouseEvent) => void;
   onCreateShift: (employeeId: string, hour: number) => void;
   onResizeMouseDown: (e: React.MouseEvent, shiftId: string) => void;
   shiftsByDate: Record<string, Shift[]>;
-  activeShift: Shift | null; // <- Enlève la directive ESLint ici
   setActiveShift: (shift: Shift | null) => void;
 };
-
-
 
 export default function PlanningGrid({
   dateKey,
   employees,
   shifts,
+  activeShift,
   setShifts,
   onShiftClick,
   onCreateShift,
   onResizeMouseDown,
   shiftsByDate,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  activeShift,
   setActiveShift,
 }: PlanningGridProps) {
   const totalWidth = hoursCount * colWidth * quartersPerHour;
@@ -69,7 +66,7 @@ export default function PlanningGrid({
 
   const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over, delta } = event;
-    
+
     if (!over || !activeShift) {
       setActiveShift(null);
       return;
@@ -77,17 +74,19 @@ export default function PlanningGrid({
 
     const newEmployeeId = over.id.toString();
     const draggedShiftId = active.id.toString();
-    
+
     // Calculer le nouveau startHour basé sur le déplacement
-    const quarterHoursDelta = Math.round((delta.x / colWidth) / quartersPerHour * 4) / 4;
+    const quarterHoursDelta =
+      Math.round((delta.x / colWidth) / quartersPerHour * 4) / 4;
     const shiftToUpdate = shifts.find(shift => shift.id === draggedShiftId);
-    
+
     if (!shiftToUpdate) {
       setActiveShift(null);
       return;
     }
 
-    let newStartHour = Math.round((shiftToUpdate.startHour + quarterHoursDelta) * 4) / 4;
+    let newStartHour =
+      Math.round((shiftToUpdate.startHour + quarterHoursDelta) * 4) / 4;
     const duration = shiftToUpdate.endHour - shiftToUpdate.startHour;
 
     // S'assurer que les heures restent dans les limites
@@ -128,18 +127,22 @@ export default function PlanningGrid({
       <div className="overflow-auto border rounded-lg shadow-sm bg-white h-full">
         <div style={{ minWidth: `${totalWidth + 160}px` }}>
           {/* En-tête des heures */}
-          <div className="flex border-b sticky top-0 bg-gray-50 z-10" style={{ height: 40 }}>
+          <div
+            className="flex border-b sticky top-0 bg-gray-50 z-10"
+            style={{ height: 40 }}
+          >
             <div className="w-40 border-r flex items-center justify-center font-semibold bg-gray-50">
               Heures
             </div>
             <div className="flex flex-1">
               {Array.from({ length: hoursCount }, (_, i: number) => (
-                <div 
-                  key={i} 
-                  className="border-r flex items-center justify-center text-sm text-gray-600" 
-                  style={{ 
+                <div
+                  key={i}
+                  className="border-r flex items-center justify-center text-sm text-gray-600"
+                  style={{
                     width: colWidth * quartersPerHour,
-                    backgroundColor: i % 2 === 0 ? 'rgba(243, 244, 246, 0.5)' : 'transparent'
+                    backgroundColor:
+                      i % 2 === 0 ? "rgba(243, 244, 246, 0.5)" : "transparent",
                   }}
                 >
                   {String(i).padStart(2, "0")}:00
@@ -155,7 +158,7 @@ export default function PlanningGrid({
                 (s) => s.employeeId === emp.id && (!activeShift || s.id !== activeShift.id)
               );
               const weekHours = getEmployeeWeekHours(emp.id, shiftsByDate, dateKey);
-              
+
               return (
                 <EmployeeRow
                   key={emp.id}
@@ -169,7 +172,6 @@ export default function PlanningGrid({
                   rowHeight={rowHeight}
                   totalWidth={totalWidth}
                   weekHours={weekHours}
-                  activeShift={activeShift}
                   quartersPerHour={quartersPerHour}
                 />
               );
@@ -180,18 +182,26 @@ export default function PlanningGrid({
 
       <DragOverlay dropAnimation={null}>
         {activeShift && (
-          <div 
+          <div
             className="bg-blue-400 text-white rounded px-2 py-1 opacity-90 pointer-events-none"
             style={{
-              width: (activeShift.endHour - activeShift.startHour) * colWidth * quartersPerHour,
+              width:
+                (activeShift.endHour - activeShift.startHour) *
+                colWidth *
+                quartersPerHour,
               height: rowHeight - 8,
             }}
           >
-            <div className="text-sm font-semibold truncate">{activeShift.employeeName}</div>
-            <div className="text-xs">
-              {formatHourMinute(activeShift.startHour)} - {formatHourMinute(activeShift.endHour)}
+            <div className="text-sm font-semibold truncate">
+              {activeShift.employeeName}
             </div>
-            <div className="text-xs italic truncate">{activeShift.shiftType}</div>
+            <div className="text-xs">
+              {formatHourMinute(activeShift.startHour)} -{" "}
+              {formatHourMinute(activeShift.endHour)}
+            </div>
+            <div className="text-xs italic truncate">
+              {activeShift.shiftType}
+            </div>
           </div>
         )}
       </DragOverlay>
@@ -210,7 +220,6 @@ type EmployeeRowProps = {
   rowHeight: number;
   totalWidth: number;
   weekHours: number;
-  activeShift: Shift | null;
   quartersPerHour: number;
 };
 
@@ -225,7 +234,6 @@ function EmployeeRow({
   rowHeight,
   totalWidth,
   weekHours,
-  activeShift,
   quartersPerHour,
 }: EmployeeRowProps) {
   const { setNodeRef } = useDroppable({
@@ -267,9 +275,9 @@ function EmployeeRow({
   // --- Fin de la logique disponibilité ---
 
   return (
-    <div 
+    <div
       ref={setNodeRef}
-      className="flex border-b hover:bg-gray-50 transition-colors relative" 
+      className="flex border-b hover:bg-gray-50 transition-colors relative"
       style={{ height: rowHeight }}
     >
       {/* Colonne d'information de l'employé */}
@@ -283,8 +291,8 @@ function EmployeeRow({
       </div>
 
       {/* Zone des shifts */}
-      <div 
-        className="relative flex-1" 
+      <div
+        className="relative flex-1"
         style={{ minWidth: totalWidth }}
         onDoubleClick={(e) => {
           const rect = e.currentTarget.getBoundingClientRect();
@@ -296,13 +304,14 @@ function EmployeeRow({
         {/* Lignes verticales */}
         <div className="absolute inset-0 flex pointer-events-none">
           {Array.from({ length: hoursCount }, (_, i) => (
-            <div 
-              key={i} 
-              className="border-r border-gray-200" 
-              style={{ 
+            <div
+              key={i}
+              className="border-r border-gray-200"
+              style={{
                 width: colWidth * quartersPerHour,
-                backgroundColor: i % 2 === 0 ? 'rgba(243, 244, 246, 0.2)' : 'transparent'
-              }} 
+                backgroundColor:
+                  i % 2 === 0 ? "rgba(243, 244, 246, 0.2)" : "transparent",
+              }}
             />
           ))}
         </div>
