@@ -1,3 +1,4 @@
+// src/app/api/employees/[id]/route.ts
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
@@ -32,8 +33,11 @@ interface EmployeeUpdateInput {
 
 export async function PUT(
   request: Request,
-  { params }: { params: RouteParams }
+  context: unknown
 ): Promise<NextResponse> {
+  // Effectuer un cast pour extraire params
+  const { params } = context as { params: RouteParams };
+
   try {
     const body = (await request.json()) as EmployeeUpdateInput;
     const {
