@@ -4,8 +4,9 @@ import { updatePayPeriod, deletePayPeriod } from "@/lib/services/payPeriodServic
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: unknown
 ): Promise<NextResponse> {
+  const { params } = context as { params: { id: string } };
   try {
     const deleted = await deletePayPeriod(params.id);
     return NextResponse.json(deleted, { status: 200 });
@@ -17,8 +18,9 @@ export async function DELETE(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: unknown
 ): Promise<NextResponse> {
+  const { params } = context as { params: { id: string } };
   try {
     const body = await request.json();
     const { startDate, endDate, salaryMonth } = body;
