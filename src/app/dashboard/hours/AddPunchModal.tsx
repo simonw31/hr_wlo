@@ -1,8 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-// Suppression de l'import de Image car il n'est pas utilisé
 import { CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,28 +13,10 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Employee, Shift } from "./types";
-import { Copy } from "lucide-react";
 
-function copyToClipboard(value?: string | null) {
-  if (!value) return;
-  navigator.clipboard.writeText(value).then(() => {
-    // Vous pouvez utiliser toast ici si souhaité
-  });
-}
-
-/**
- * Convertit une chaîne d'entrée (plusieurs formats possibles)
- * en nombre décimal (ex. 16.25 => 16h15).
- *
- * Formats acceptés :
- * - "HH:MM" (ex. "16:15")
- * - "HH" (ex. "16") => 16:00
- * - "HH.decimal" (ex. "16.5") => 16:30
- */
 function parseTimeFlexible(str: string): number {
   const raw = str.trim();
 
-  // 1) Format "HH:MM"
   const matchColon = raw.match(/^(\d{1,2}):(\d{1,2})$/);
   if (matchColon) {
     const hh = parseInt(matchColon[1], 10);
@@ -44,14 +24,12 @@ function parseTimeFlexible(str: string): number {
     return hh + mm / 60;
   }
 
-  // 2) Format entier "HH"
   const matchInt = raw.match(/^(\d{1,2})$/);
   if (matchInt) {
     const hh = parseInt(matchInt[1], 10);
     return hh;
   }
 
-  // 3) Format décimal "HH.x"
   const matchDec = raw.match(/^(\d{1,2})\.(\d+)$/);
   if (matchDec) {
     const hh = parseInt(matchDec[1], 10);
@@ -61,7 +39,7 @@ function parseTimeFlexible(str: string): number {
   }
 
   throw new Error(
-    'Format invalide. Essayez &quot;HH:MM&quot;, ou &quot;HH&quot;, ou &quot;HH.decimal&quot; (ex: &quot;16.5&quot; => 16h30).'
+    'Format invalide. Essayez "HH:MM", ou "HH", ou "HH.decimal" (ex: "16.5" => 16h30).'
   );
 }
 
@@ -78,12 +56,11 @@ export default function AddPunchModal({
   onClose,
   onAdd,
 }: AddPunchModalProps) {
-  const router = useRouter();
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>(
     employees.length > 0 ? employees[0].id : ""
   );
-  const [checkInStr, setCheckInStr] = useState("18"); // par défaut "18"
-  const [checkOutStr, setCheckOutStr] = useState("21"); // par défaut "21"
+  const [checkInStr, setCheckInStr] = useState("18");
+  const [checkOutStr, setCheckOutStr] = useState("21");
 
   async function handleAddPunch() {
     let checkInDecimal: number;
@@ -99,13 +76,11 @@ export default function AddPunchModal({
       return;
     }
 
-    // Construire la dateKey en UTC
     const year = currentDay.getUTCFullYear();
     const month = String(currentDay.getUTCMonth() + 1).padStart(2, "0");
     const day = String(currentDay.getUTCDate()).padStart(2, "0");
     const dateKey = `${year}-${month}-${day}`;
 
-    // Construire checkIn / checkOut en UTC
     const dateOnly = new Date(
       Date.UTC(year, currentDay.getUTCMonth(), currentDay.getUTCDate())
     );

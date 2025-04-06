@@ -112,7 +112,7 @@ export default function DashboardPage() {
               <SelectValue placeholder="Choisissez une période" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="day">Aujourd'hui</SelectItem>
+              <SelectItem value="day">Aujourd&apos;hui</SelectItem>
               <SelectItem value="week">Cette semaine</SelectItem>
               <SelectItem value="month">Ce mois</SelectItem>
               <SelectItem value="year">Cette année</SelectItem>

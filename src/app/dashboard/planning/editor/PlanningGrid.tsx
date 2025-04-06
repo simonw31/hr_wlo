@@ -30,10 +30,10 @@ type PlanningGridProps = {
   onCreateShift: (employeeId: string, hour: number) => void;
   onResizeMouseDown: (e: React.MouseEvent, shiftId: string) => void;
   shiftsByDate: Record<string, Shift[]>;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  activeShift: Shift | null;
+  activeShift: Shift | null; // <- Enlève la directive ESLint ici
   setActiveShift: (shift: Shift | null) => void;
 };
+
 
 
 export default function PlanningGrid({
@@ -45,6 +45,7 @@ export default function PlanningGrid({
   onCreateShift,
   onResizeMouseDown,
   shiftsByDate,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   activeShift,
   setActiveShift,
 }: PlanningGridProps) {

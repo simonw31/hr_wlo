@@ -58,10 +58,12 @@ export default function HoursGuidePageClient({
   }
 
   // Callback pour gérer le clic sur un shift
-  function handleShiftClick(shift: Shift, _e: React.MouseEvent) {
+  // Remplace la déclaration actuelle par :
+  function handleShiftClick(shift: Shift, _: React.MouseEvent) {
     console.log("Shift cliqué :", shift);
     setEditingShift(shift);
   }
+
 
   async function handleUpdateShift(updated: Shift) {
     console.log("Update shift:", updated);
