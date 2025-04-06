@@ -2,12 +2,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generatePayVariablesCSV } from "@/lib/services/exportService";
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const { searchParams } = new URL(request.url);
     const payPeriodId = searchParams.get("payPeriodId");
     if (!payPeriodId) {
-      return NextResponse.json({ error: "Missing payPeriodId parameter" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing payPeriodId parameter" },
+        { status: 400 }
+      );
     }
     const csv = await generatePayVariablesCSV(payPeriodId);
     return new NextResponse(csv, {
@@ -17,7 +20,9 @@ export async function GET(request: NextRequest) {
         "Content-Disposition": `attachment; filename="pay_variables_${payPeriodId}.csv"`,
       },
     });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const message =
+      error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

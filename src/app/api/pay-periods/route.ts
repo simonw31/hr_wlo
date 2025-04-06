@@ -1,17 +1,17 @@
-// app/api/pay-periods/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { createPayPeriod, getAllPayPeriods } from "@/lib/services/payPeriodService";
 
-export async function GET() {
+export async function GET(): Promise<NextResponse> {
   try {
     const payPeriods = await getAllPayPeriods();
     return NextResponse.json(payPeriods, { status: 200 });
-  } catch (error: any) {
-    return NextResponse.json({ message: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ message }, { status: 500 });
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const body = await request.json();
     const { startDate, endDate, salaryMonth } = body;
@@ -26,7 +26,8 @@ export async function POST(request: NextRequest) {
       salaryMonth, // le mois auquel la paie est rattachée
     });
     return NextResponse.json(newPayPeriod, { status: 201 });
-  } catch (error: any) {
-    return NextResponse.json({ message: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ message }, { status: 500 });
   }
 }

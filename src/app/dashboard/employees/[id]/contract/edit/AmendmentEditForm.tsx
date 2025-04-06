@@ -6,7 +6,6 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { 
@@ -81,7 +80,7 @@ export default function AmendmentEditForm({
         toast.success("Avenant créé avec succès");
         router.push(`/dashboard/employees/${employeeId}/contract`);
       } else {
-        toast.error("Erreur lors de la création de l'avenant");
+        toast.error("Erreur lors de la création de l&#39;avenant");
       }
     } catch (error) {
       toast.error("Erreur réseau");
@@ -99,21 +98,23 @@ export default function AmendmentEditForm({
           </div>
           <div>
             <h2 className="text-xl font-semibold text-gray-900">
-              {initialData ? "Modifier l'avenant" : "Nouvel avenant"}
+              {initialData ? "Modifier l&#39;avenant" : "Nouvel avenant"}
             </h2>
             <p className="text-gray-500">
-              {initialData ? "Modification des termes de l'avenant" : "Création d'un nouvel avenant au contrat"}
+              {initialData
+                ? "Modification des termes de l&#39;avenant"
+                : "Création d&#39;un nouvel avenant au contrat"}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Informations de l'avenant */}
+      {/* Informations de l&#39;avenant */}
       <Card className="shadow-sm border-none">
         <CardHeader>
           <CardTitle className="text-lg font-semibold flex items-center gap-2">
             <Calendar className="w-5 h-5 text-purple-600" />
-            Période de l'avenant
+            Période de l&#39;avenant
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -134,7 +135,7 @@ export default function AmendmentEditForm({
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label>Type d'avenant</Label>
+                <Label>Type d&#39;avenant</Label>
                 <div className="flex items-center gap-2">
                   <Label className="text-sm text-gray-500">Temporaire</Label>
                   <Switch
@@ -190,8 +191,8 @@ export default function AmendmentEditForm({
               <div>
                 <h4 className="font-medium text-amber-900">Important</h4>
                 <p className="text-sm text-amber-700 mt-1">
-                  La modification des heures de travail prendra effet à partir de la date de début spécifiée.
-                  {isTemporary && " Elle sera automatiquement annulée à la date de fin."}
+                  La modification des heures de travail prendra effet &agrave; partir de la date de d&#39;ebut spécifi&eacute;e.
+                  {isTemporary && " Elle sera automatiquement annul&eacute;e &agrave; la date de fin."}
                 </p>
               </div>
             </div>
@@ -212,7 +213,7 @@ export default function AmendmentEditForm({
         </Button>
         <Button type="submit" className="gap-2">
           <Save className="w-4 h-4" />
-          Enregistrer l'avenant
+          Enregistrer l&#39;avenant
         </Button>
       </div>
     </form>

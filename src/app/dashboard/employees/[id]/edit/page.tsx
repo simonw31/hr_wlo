@@ -7,6 +7,14 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import EmployeeEditForm from "../EmployeeEditForm";
 
+interface AvailabilityInterval {
+  id: string;
+  day: string;
+  allDay: boolean;
+  startTime: string | null;
+  endTime: string | null;
+}
+
 export default async function EmployeeEditPage({ params }: { params: { id: string } }) {
   // Extraction de l'ID de l'employé depuis le contexte
   const id = params.id;
@@ -38,7 +46,7 @@ export default async function EmployeeEditPage({ params }: { params: { id: strin
       : "",
     // On ajoute une propriété "availabilities" à partir du premier contrat
     availabilities:
-      firstContract?.availability.map((avail: any) => ({
+      firstContract?.availability.map((avail: AvailabilityInterval) => ({
         id: avail.id,
         day: avail.day,
         allDay: avail.allDay,

@@ -2,10 +2,35 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-export async function PUT(request: Request, context: any) {
+interface RouteContext {
+  params: {
+    contractId: string;
+  };
+}
+
+interface AvailabilityInput {
+  day: string;
+  allDay: boolean;
+  startTime?: string | null;
+  endTime?: string | null;
+}
+
+interface UpdateContractInput {
+  contractType: string;
+  role: string;
+  hoursPerWeek?: string | number | null;
+  status: string;
+  resignationDate?: string | null;
+  availability?: AvailabilityInput[];
+}
+
+export async function PUT(
+  request: Request,
+  context: RouteContext
+): Promise<NextResponse> {
   try {
-    const contractId = context.params.contractId; // Extraction depuis context
-    const body = await request.json();
+    const { contractId } = context.params;
+    const body = (await request.json()) as UpdateContractInput;
     const { contractType, role, hoursPerWeek, status, resignationDate, availability } = body;
 
     const updatedContract = await prisma.contract.update({
@@ -13,13 +38,13 @@ export async function PUT(request: Request, context: any) {
       data: {
         contractType,
         role,
-        hoursPerWeek: hoursPerWeek ? parseInt(hoursPerWeek, 10) : null,
+        hoursPerWeek: hoursPerWeek ? parseInt(hoursPerWeek.toString(), 10) : null,
         status,
         resignationDate: resignationDate ? new Date(resignationDate) : null,
         availability: {
           deleteMany: {},
           create: Array.isArray(availability)
-            ? availability.map((a: any) => ({
+            ? availability.map((a: AvailabilityInput) => ({
                 day: a.day,
                 allDay: a.allDay,
                 startTime: a.allDay ? null : a.startTime,

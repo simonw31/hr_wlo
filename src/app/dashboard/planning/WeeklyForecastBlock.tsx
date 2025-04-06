@@ -7,10 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 type WeeklyForecastBlockProps = {
-  monday: Date | null; // <-- peut être null
+  monday: Date | null; // Peut être null
 };
 
 export default function WeeklyForecastBlock({ monday }: WeeklyForecastBlockProps) {
+  // Appel du hook toujours exécuté
+  const [forecasts, setForecasts] = useState<number[]>(() => Array(7).fill(0));
+
   // Si aucune semaine sélectionnée, on affiche un message
   if (!monday) {
     return (
@@ -22,15 +25,12 @@ export default function WeeklyForecastBlock({ monday }: WeeklyForecastBlockProps
         </CardHeader>
         <CardContent>
           <p className="text-sm text-gray-500">
-            Aucune semaine n’est actuellement sélectionnée dans le calendrier.
+            Aucune semaine n&apos;est actuellement sélectionnée dans le calendrier.
           </p>
         </CardContent>
       </Card>
     );
   }
-
-  // Sinon, on affiche les champs de prévisions
-  const [forecasts, setForecasts] = useState<number[]>(() => Array(7).fill(0));
 
   // Calcul des 7 jours (lundi -> dimanche)
   const days = Array.from({ length: 7 }, (_, i) => addDays(monday, i));

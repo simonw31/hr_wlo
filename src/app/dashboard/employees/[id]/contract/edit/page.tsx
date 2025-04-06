@@ -4,30 +4,77 @@ export const dynamic = "force-dynamic";
 export const dynamicParams = true;
 
 import { prisma } from "@/lib/prisma";
-import { notFound } from "next/navigation";
+// Suppression de l'import de notFound puisqu'il n'est pas utilisé
 import ContractEditForm from "./ContractEditForm";
 
-export default async function ContractEditPage(context: any) {
+// Définition explicite du contexte de page
+interface PageContext {
+  params: {
+    id: string;
+  };
+}
+
+interface PrismaAvailability {
+  id: string;
+  day: string;
+  allDay: boolean;
+  startTime: string | null;
+  endTime: string | null;
+}
+
+interface PrismaContract {
+  id: string;
+  contractType: string | null;
+  role: string;
+  hoursPerWeek: number | null;
+  status: string;
+  resignationDate: Date | null;
+  endDate: Date | null;
+  availability: PrismaAvailability[];
+}
+
+// On définit un type local pour correspondre aux props attendues par le formulaire
+interface ContractAvailability {
+  id: string;
+  day: string;
+  allDay: boolean;
+  startTime: string;
+  endTime: string;
+}
+
+interface EditContract {
+  id: string;
+  contractType: string;
+  role: string;
+  hoursPerWeek: number | null;
+  status: string;
+  resignationDate: string;
+  endDate: string;
+  availability: ContractAvailability[];
+}
+
+export default async function ContractEditPage(context: PageContext) {
   // Extraction de l'ID de l'employé depuis le contexte
   const employeeId = context.params.id;
 
-  // On récupère le contrat via employeeId avec findFirst (puisque employeeId n'est plus unique)
-  const contract = await prisma.contract.findFirst({
+  // Récupération du contrat via employeeId avec findFirst
+  const contract: PrismaContract | null = await prisma.contract.findFirst({
     where: { employeeId },
     include: { availability: true },
   });
 
-  let editContract: any;
+  let editContract: EditContract;
   if (contract && contract.contractType !== null) {
     editContract = {
       ...contract,
+      contractType: contract.contractType,
       resignationDate: contract.resignationDate
         ? new Date(contract.resignationDate).toISOString().split("T")[0]
         : "",
       endDate: contract.endDate
         ? new Date(contract.endDate).toISOString().split("T")[0]
         : "",
-      availability: contract.availability.map((avail: any) => ({
+      availability: contract.availability.map((avail): ContractAvailability => ({
         id: avail.id,
         day: avail.day,
         allDay: avail.allDay,

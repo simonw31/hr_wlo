@@ -161,7 +161,7 @@ export default function EmployeeInformation({ employee }: EmployeeInformationPro
             />
             {employee.address2 && (
               <InfoField
-                label="Complément d'adresse"
+                label="Complément d&apos;adresse"
                 value={employee.address2}
                 icon={<MapPin className="w-4 h-4" />}
                 fullWidth
@@ -210,7 +210,7 @@ export default function EmployeeInformation({ employee }: EmployeeInformationPro
         <CardHeader>
           <CardTitle className="text-xl font-semibold flex items-center gap-2">
             <Heart className="w-6 h-6 text-blue-600" />
-            Santé et contact d'urgence
+            Santé et contact d&apos;urgence
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -222,12 +222,12 @@ export default function EmployeeInformation({ employee }: EmployeeInformationPro
               fullWidth
             />
             <InfoField
-              label="Contact d'urgence"
+              label="Contact d&apos;urgence"
               value={employee.emergencyContactName || "Non défini"}
               icon={<Heart className="w-4 h-4" />}
             />
             <InfoField
-              label="Téléphone d'urgence"
+              label="Téléphone d&apos;urgence"
               value={employee.emergencyContactPhone || "Non défini"}
               icon={<Heart className="w-4 h-4" />}
             />

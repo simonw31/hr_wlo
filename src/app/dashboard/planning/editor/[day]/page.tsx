@@ -1,7 +1,29 @@
 import { prisma } from "@/lib/prisma";
 import { format, startOfWeek, endOfWeek } from "date-fns";
 import PlanningEditorPageClient from "../PlanningEditorPageClient";
-import { Shift } from "../types";
+import { Employee, Shift } from "../types";
+
+interface Amendment {
+  startDate: string;
+  endDate?: string | null;
+  newHoursPerWeek: number | null;
+}
+
+interface Availability {
+  id: string;
+  day: string;
+  allDay: boolean;
+  startTime: string | null;
+  endTime: string | null;
+}
+
+interface EmployeeWithContracts extends Employee {
+  contracts?: {
+    hoursPerWeek: number | null;
+    availability: Availability[];
+    amendments: Amendment[];
+  }[];
+}
 
 interface PageProps {
   params: { day: string };
@@ -32,15 +54,14 @@ export default async function EditorPage({ params }: PageProps) {
     },
   });
 
-  // Pour l'affichage, on sélectionne le premier contrat pour chaque employé
-  // et on vérifie s'il existe un avenant actif pour la journée planifiée
-  const employees = employeesFromDB.map((emp) => {
+  // On cast les employés en EmployeeWithContracts pour avoir accès à "contracts"
+  const employees = (employeesFromDB as EmployeeWithContracts[]).map((emp) => {
     const contract = emp.contracts?.[0];
     // Par défaut, utiliser les heures du contrat de base
     let contractHours = contract?.hoursPerWeek ?? 0;
 
     if (contract && contract.amendments && contract.amendments.length > 0) {
-      const activeAmendment = contract.amendments.find((amendment) => {
+      const activeAmendment = contract.amendments.find((amendment: Amendment) => {
         const startDate = new Date(amendment.startDate);
         const endDate = amendment.endDate ? new Date(amendment.endDate) : null;
         // L'avenant est actif si la date planifiée est entre startDate et endDate (ou sans fin définie)
@@ -56,13 +77,15 @@ export default async function EditorPage({ params }: PageProps) {
       firstName: emp.firstName,
       lastName: emp.lastName,
       contractHours,
-      availability: contract?.availability?.map((a: any) => ({
-        id: a.id,
-        day: a.day,
-        allDay: a.allDay,
-        startTime: a.startTime || undefined,
-        endTime: a.endTime || undefined,
-      })) ?? [],
+      availability:
+        contract?.availability?.map((a: Availability) => ({
+          id: a.id,
+          // Conversion explicite en union de chaînes littérales
+          day: a.day as "Lundi" | "Mardi" | "Mercredi" | "Jeudi" | "Vendredi" | "Samedi" | "Dimanche",
+          allDay: a.allDay,
+          startTime: a.startTime || undefined,
+          endTime: a.endTime || undefined,
+        })) ?? [],
     };
   });
 

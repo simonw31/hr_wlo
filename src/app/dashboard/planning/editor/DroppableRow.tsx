@@ -8,7 +8,6 @@ import DraggableShift from "./DraggableShift";
 type Props = {
   employee: Employee;
   shifts: Shift[];
-  dateKey: string;
   onShiftClick: (shiftId: string, e: React.MouseEvent) => void;
   onCreateShift: (employeeId: string, hour: number) => void;
   onResizeMouseDown: (e: React.MouseEvent, shiftId: string) => void;
@@ -22,7 +21,6 @@ type Props = {
 export default function DroppableRow({
   employee,
   shifts,
-  dateKey,
   onShiftClick,
   onCreateShift,
   onResizeMouseDown,
@@ -70,15 +68,12 @@ export default function DroppableRow({
         {shifts.map((shift) => {
           const isActive = shift.id === activeShift?.id;
 
-          // Debug : log pour vérifier la détection
           if (isActive) {
             console.log(
               "Shift",
               shift.id,
               "est en cours de drag, on ne le rend pas dans la grille."
             );
-            // On peut ajouter un style fallback si on ne retournait pas null :
-            // style={{ display: "none" }}
             return null;
           }
 

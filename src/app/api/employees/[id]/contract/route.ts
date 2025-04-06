@@ -1,18 +1,48 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-export async function POST(request: Request, context: any) {
-  try {
-    // Récupération de l'ID de l'employé depuis le contexte
-    const id = context.params.id;
+interface RouteParams {
+  id: string;
+}
 
-    const body = await request.json();
+interface AvailabilityInput {
+  day: string;
+  allDay: boolean;
+  startTime?: string | null;
+  endTime?: string | null;
+}
+
+interface ContractInput {
+  contractType?: string | null;
+  role?: string | null;
+  hoursPerWeek?: string | number | null;
+  status?: string;
+  resignationDate?: string | null;
+  endDate?: string | null;
+  availability?: AvailabilityInput[];
+}
+
+export async function POST(
+  request: Request,
+  { params }: { params: RouteParams }
+): Promise<NextResponse> {
+  try {
+    const id = params.id;
+    const body = (await request.json()) as ContractInput;
     console.log("=== POST /api/employees/[id]/contract - body ===");
     console.log(body);
 
-    const { contractType, role, hoursPerWeek, status, resignationDate, endDate, availability } = body;
+    const {
+      contractType,
+      role,
+      hoursPerWeek,
+      status,
+      resignationDate,
+      endDate,
+      availability,
+    } = body;
 
-    // Vérifier si un contrat existe déjà pour cet employé avec findFirst (puisque employeeId n'est plus unique)
+    // Vérifier si un contrat existe déjà pour cet employé
     const existingContract = await prisma.contract.findFirst({
       where: { employeeId: id },
     });
@@ -32,7 +62,7 @@ export async function POST(request: Request, context: any) {
       data: {
         contractType: contractType || null,
         role: role || null,
-        hoursPerWeek: hoursPerWeek ? parseInt(hoursPerWeek, 10) : null,
+        hoursPerWeek: hoursPerWeek ? parseInt(hoursPerWeek.toString(), 10) : null,
         status: status || "EN_CONTRAT",
         resignationDate: resignationDate ? new Date(resignationDate) : null,
         // Enregistrer endDate uniquement si le type de contrat est "CDD"
@@ -42,7 +72,7 @@ export async function POST(request: Request, context: any) {
         },
         availability: {
           create: Array.isArray(availability)
-            ? availability.map((avail: any) => ({
+            ? availability.map((avail: AvailabilityInput) => ({
                 day: avail.day,
                 allDay: avail.allDay,
                 startTime: avail.allDay ? null : avail.startTime,
@@ -62,6 +92,8 @@ export async function POST(request: Request, context: any) {
     return NextResponse.json(newContract);
   } catch (error) {
     console.error("Erreur POST /api/employees/[id]/contract:", error);
-    return NextResponse.json({ error: "Unable to create contract" }, { status: 500 });
+    const message =
+      error instanceof Error ? error.message : "Unable to create contract";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

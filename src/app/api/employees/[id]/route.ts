@@ -1,13 +1,41 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
+interface RouteParams {
+  id: string;
+}
+
+interface AvailabilityInput {
+  day: string;
+  allDay: boolean;
+  startTime?: string | null;
+  endTime?: string | null;
+}
+
+interface EmployeeUpdateInput {
+  firstName: string;
+  lastName: string;
+  sex: string;
+  address: string;
+  address2?: string;
+  postalCode: string;
+  city: string;
+  nationality: string;
+  iban: string;
+  bic: string;
+  socialSecurityNumber: string;
+  emergencyContactName: string;
+  emergencyContactPhone: string;
+  transportMeans: string;
+  availabilities?: AvailabilityInput[];
+}
+
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
-) {
+  { params }: { params: RouteParams }
+): Promise<NextResponse> {
   try {
-    const body = await request.json();
-    // Extraire les champs de l'Employee et les disponibilités
+    const body = (await request.json()) as EmployeeUpdateInput;
     const {
       firstName,
       lastName,
@@ -23,7 +51,7 @@ export async function PUT(
       emergencyContactName,
       emergencyContactPhone,
       transportMeans,
-      availabilities, // attend un tableau de disponibilités
+      availabilities,
     } = body;
 
     // Récupérer l'employé avec ses contrats afin d'obtenir l'ID du contrat actif (on prend le premier)
@@ -35,7 +63,7 @@ export async function PUT(
       return NextResponse.json({ error: "Employee not found" }, { status: 404 });
     }
 
-    // On met à jour l'employé (hors contrat)
+    // Mise à jour de l'employé (hors contrat)
     const updatedEmployee = await prisma.employee.update({
       where: { id: params.id },
       data: {
@@ -64,9 +92,9 @@ export async function PUT(
         where: { id: contractId },
         data: {
           availability: {
-            deleteMany: {}, // supprime toutes les disponibilités actuelles
+            deleteMany: {}, // Supprime toutes les disponibilités actuelles
             create: Array.isArray(availabilities)
-              ? availabilities.map((avail: any) => ({
+              ? availabilities.map((avail: AvailabilityInput) => ({
                   day: avail.day,
                   allDay: avail.allDay,
                   startTime: avail.allDay ? null : avail.startTime,
@@ -78,8 +106,6 @@ export async function PUT(
         include: { availability: true },
       });
     }
-
-    // Renvoyer l'employé mis à jour et, si existant, le contrat mis à jour
     const result = {
       ...updatedEmployee,
       contract: updatedContract,
@@ -88,6 +114,7 @@ export async function PUT(
     return NextResponse.json(result);
   } catch (error) {
     console.error("Erreur PUT /api/employees/[id]:", error);
-    return NextResponse.json({ error: "Unable to update employee" }, { status: 500 });
+    const message = error instanceof Error ? error.message : "Unable to update employee";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

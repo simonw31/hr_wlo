@@ -64,9 +64,8 @@ const DOCUMENT_TYPES = [
   }
 ];
 
-export default function DocumentsTab({ employeeId }: { employeeId: string }) {
+export default function DocumentsTab() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedType, setSelectedType] = useState<DocumentType | null>(null);
   
   // Exemple de documents (à remplacer par les vrais données)
   const [documents] = useState<Document[]>([
@@ -91,7 +90,6 @@ export default function DocumentsTab({ employeeId }: { employeeId: string }) {
   );
 
   const handleGenerateDocument = (type: DocumentType) => {
-    setSelectedType(type);
     console.log(`Générer document de type: ${type}`);
   };
 

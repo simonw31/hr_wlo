@@ -99,7 +99,7 @@ export default function PlanningGrid({
             employeeId: newEmployeeId,
             employeeName: getEmployeeName(employees, newEmployeeId),
             startHour: newStartHour,
-            endHour: newStartHour + duration
+            endHour: newStartHour + duration,
           };
         }
         return shift;
@@ -130,7 +130,7 @@ export default function PlanningGrid({
               Heures
             </div>
             <div className="flex flex-1">
-              {Array.from({ length: hoursCount }, (_, i) => (
+              {Array.from({ length: hoursCount }, (_, i: number) => (
                 <div 
                   key={i} 
                   className="border-r flex items-center justify-center text-sm text-gray-600" 
@@ -317,7 +317,7 @@ function EmployeeRow({
                   height: "100%",
                   backgroundColor: "rgba(128,128,128,0.3)",
                   zIndex: 1,
-                  pointerEvents: "none",   // clics passent à travers
+                  pointerEvents: "none",
                 }}
               />
             )}
@@ -331,7 +331,7 @@ function EmployeeRow({
                   height: "100%",
                   backgroundColor: "rgba(128,128,128,0.3)",
                   zIndex: 1,
-                  pointerEvents: "none",   // clics passent à travers
+                  pointerEvents: "none",
                 }}
               />
             )}

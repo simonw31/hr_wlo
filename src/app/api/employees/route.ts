@@ -1,6 +1,40 @@
-import { prisma } from "@/lib/prisma"
-import { NextResponse } from "next/server"
+import { prisma } from "@/lib/prisma";
+import { NextResponse } from "next/server";
 
+interface AvailabilityInput {
+  day: string;
+  allDay: boolean;
+  startTime?: string | null;
+  endTime?: string | null;
+}
+
+interface EmployeeInput {
+  firstName?: string;
+  lastName?: string;
+  matricule?: string;
+  dateOfBirth?: string;
+  sex?: string;
+  nationality?: string;
+  address?: string;
+  address2?: string;
+  postalCode?: string;
+  city?: string;
+  iban?: string;
+  bic?: string;
+  socialSecurityNumber?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+  transportMeans?: string;
+}
+
+interface ContractInput {
+  availability?: AvailabilityInput[];
+}
+
+interface EmployeePostInput {
+  employee: EmployeeInput;
+  contract?: ContractInput;
+}
 
 export async function GET() {
   try {
@@ -9,59 +43,46 @@ export async function GET() {
       include: {
         contracts: true, // Si vous voulez inclure la relation contract
       },
-    })
-    return NextResponse.json(employees)
+    });
+    return NextResponse.json(employees);
   } catch (error) {
-    console.error("Erreur GET /api/employees:", error)
-    return NextResponse.json({ error: "Something went wrong" }, { status: 500 })
+    console.error("Erreur GET /api/employees:", error);
+    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
   }
 }
 
-
 export async function POST(request: Request) {
   try {
-    // 1. On lit le corps JSON
-    const body = await request.json()
+    // 1. On lit le corps JSON et on le typifie
+    const body = (await request.json()) as EmployeePostInput;
 
-    // 2. On logge tout le body pour voir sa structure exacte
-    console.log("=== POST /api/employees - body reçu ===")
-    console.log(body)
+    // 2. Log du body pour vérifier la structure
+    console.log("=== POST /api/employees - body reçu ===");
+    console.log(body);
 
-    // Supposons que votre formulaire envoie :
-    // {
-    //   "employee": { ...tous les champs Employee... },
-    //   "contract": {
-    //     "availability": [
-    //       { "day": "Lundi", "allDay": true },
-    //       ...
-    //     ]
-    //   }
-    // }
-
-    const { employee, contract } = body
-    console.log("=== employee ===", employee)
-    console.log("=== contract ===", contract)
+    const { employee, contract } = body;
+    console.log("=== employee ===", employee);
+    console.log("=== contract ===", contract);
 
     if (!employee) {
-      console.error("Aucun objet 'employee' trouvé dans le body")
-      return NextResponse.json({ error: "Missing employee data" }, { status: 400 })
+      console.error("Aucun objet 'employee' trouvé dans le body");
+      return NextResponse.json({ error: "Missing employee data" }, { status: 400 });
     }
 
-    // 3. Convertir la date de naissance si elle existe
-    let birthDate: Date | undefined
+    // 3. Conversion de la date de naissance si présente
+    let birthDate: Date | undefined;
     if (employee.dateOfBirth) {
-      const d = new Date(employee.dateOfBirth)
+      const d = new Date(employee.dateOfBirth);
       if (!isNaN(d.getTime())) {
-        birthDate = d
+        birthDate = d;
       } else {
-        console.warn("Date de naissance invalide :", employee.dateOfBirth)
+        console.warn("Date de naissance invalide :", employee.dateOfBirth);
       }
     }
 
-    // 4. Création de l'employé (et du contrat si vous voulez un nested create)
+    // 4. Création de l'employé et du contrat associé (si présent)
     const newEmployee = await prisma.employee.create({
       data: {
-        // Champs du modèle Employee
         firstName: employee.firstName || "Non défini",
         lastName: employee.lastName || "Non défini",
         matricule: employee.matricule ? parseInt(employee.matricule, 10) : null,
@@ -79,13 +100,12 @@ export async function POST(request: Request) {
         emergencyContactPhone: employee.emergencyContactPhone || null,
         transportMeans: employee.transportMeans || null,
 
-        // Si on veut créer un contrat par défaut
+        // Création du contrat par défaut si des données de contrat sont fournies
         ...(contract && {
           contract: {
             create: {
-              // contractType, role, hoursPerWeek, etc. si besoin
               availability: {
-                create: contract.availability?.map((avail: any) => ({
+                create: contract.availability?.map((avail: AvailabilityInput) => ({
                   day: avail.day,
                   allDay: avail.allDay,
                   startTime: avail.allDay ? null : avail.startTime,
@@ -103,15 +123,14 @@ export async function POST(request: Request) {
           },
         },
       },
-    })
+    });
 
-    // 5. On logge l'employé créé pour confirmer le résultat
-    console.log("=== Employé créé avec succès ===")
-    console.log(newEmployee)
+    console.log("=== Employé créé avec succès ===");
+    console.log(newEmployee);
 
-    return NextResponse.json(newEmployee)
+    return NextResponse.json(newEmployee);
   } catch (error) {
-    console.error("Erreur POST /api/employees:", error)
-    return NextResponse.json({ error: "Unable to create employee" }, { status: 500 })
+    console.error("Erreur POST /api/employees:", error);
+    return NextResponse.json({ error: "Unable to create employee" }, { status: 500 });
   }
 }

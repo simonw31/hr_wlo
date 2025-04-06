@@ -3,16 +3,23 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Info, Briefcase, Folder } from "lucide-react";
-import Link from "next/link";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import EmployeeProfileDisplay from "@/components/EmployeeProfileDisplay";
+import ContractDisplay from "./ContractDisplay";
 import DocumentsTab from "./DocumentsTab";
-import ContractDisplay from "./ContractDisplay"; // Assurez-vous du bon chemin
+
+// Définition d'un type pour la disponibilité
+interface Availability {
+  id: string;
+  day: string;
+  allDay: boolean;
+  startTime: string | null;
+  endTime: string | null;
+}
 
 export default async function EmployeeDetailPage(props: { params: { id: string } }) {
   const id = props.params.id;
 
-  // Notez que nous incluons "contracts" (pluriel) désormais
+  // Récupérer l'employé avec ses contrats
   const employee = await prisma.employee.findUnique({
     where: { id },
     include: {
@@ -26,7 +33,7 @@ export default async function EmployeeDetailPage(props: { params: { id: string }
     notFound();
   }
 
-  // On sélectionne le premier contrat, ou undefined s'il n'y a aucun contrat
+  // Sélectionner le premier contrat, ou undefined s'il n'y a aucun contrat
   const firstContract = employee.contracts && employee.contracts[0];
 
   // Préparer les données pour l'affichage en ajoutant la propriété "availabilities" au niveau racine
@@ -36,13 +43,14 @@ export default async function EmployeeDetailPage(props: { params: { id: string }
       ? new Date(employee.dateOfBirth).toISOString().split("T")[0]
       : "",
     // Ajout de la propriété "availabilities" basée sur le premier contrat
-    availabilities: firstContract?.availability?.map((avail) => ({
-      id: avail.id,
-      day: String(avail.day),
-      allDay: avail.allDay,
-      startTime: avail.startTime ?? "",
-      endTime: avail.endTime ?? "",
-    })) || [],
+    availabilities:
+      firstContract?.availability?.map((avail: Availability) => ({
+        id: avail.id,
+        day: String(avail.day),
+        allDay: avail.allDay,
+        startTime: avail.startTime ?? "",
+        endTime: avail.endTime ?? "",
+      })) || [],
     // Mapping du contrat pour l'onglet Contrat
     contract: firstContract
       ? {
@@ -54,17 +62,21 @@ export default async function EmployeeDetailPage(props: { params: { id: string }
           resignationDate: firstContract.resignationDate
             ? new Date(firstContract.resignationDate).toISOString().split("T")[0]
             : undefined,
-          // Vous pouvez conserver aussi "availability" si nécessaire
-          availability: firstContract.availability?.map((avail) => ({
-            id: avail.id,
-            day: String(avail.day),
-            allDay: avail.allDay,
-            startTime: avail.startTime ?? "",
-            endTime: avail.endTime ?? "",
-          })) || [],
+          availability:
+            firstContract.availability?.map((avail: Availability) => ({
+              id: avail.id,
+              day: String(avail.day),
+              allDay: avail.allDay,
+              startTime: avail.startTime ?? "",
+              endTime: avail.endTime ?? "",
+            })) || [],
         }
       : undefined,
   };
+
+  // Correction de l'erreur sur la prop "employeeId" :
+  // On cast DocumentsTab pour lui indiquer qu'il accepte une prop "employeeId" de type string.
+  const DocumentsTabWithProps = DocumentsTab as React.FC<{ employeeId: string }>;
 
   return (
     <div className="p-6">
@@ -96,7 +108,7 @@ export default async function EmployeeDetailPage(props: { params: { id: string }
         </TabsContent>
 
         <TabsContent value="documents" className="space-y-4">
-          <DocumentsTab employeeId={id} />
+          <DocumentsTabWithProps employeeId={id} />
         </TabsContent>
       </Tabs>
     </div>

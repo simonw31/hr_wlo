@@ -2,16 +2,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPayPeriodById, updatePayPeriod, deletePayPeriod } from "@/lib/services/payPeriodService";
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+): Promise<NextResponse> {
   try {
     const deleted = await deletePayPeriod(params.id);
     return NextResponse.json(deleted, { status: 200 });
-  } catch (error: any) {
-    return NextResponse.json({ message: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ message }, { status: 500 });
   }
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+): Promise<NextResponse> {
   try {
     const body = await request.json();
     const { startDate, endDate, salaryMonth } = body;
@@ -24,7 +31,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       salaryMonth,
     });
     return NextResponse.json(updated, { status: 200 });
-  } catch (error: any) {
-    return NextResponse.json({ message: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ message }, { status: 500 });
   }
 }

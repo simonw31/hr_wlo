@@ -5,17 +5,19 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Clock from "@/components/clock";
 import { toast } from "sonner";
-import { 
-  LogIn, 
-  LogOut, 
-  User, 
+import {
+  LogIn,
+  LogOut,
+  User,
   Calendar,
   Loader2,
   AlertCircle,
-  ArrowLeft
+  ArrowLeft,
 } from "lucide-react";
+// Assurez-vous que le type Employee est défini dans ../types
+import { Employee } from "./types";
 
-async function fetchEmployeeByMatricule(matricule: string) {
+async function fetchEmployeeByMatricule(matricule: string): Promise<Employee> {
   const res = await fetch("/api/punch", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -32,7 +34,7 @@ async function fetchEmployeeByMatricule(matricule: string) {
 export default function ConfirmPunchPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [employee, setEmployee] = useState<any>(null);
+  const [employee, setEmployee] = useState<Employee | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [punchLoading, setPunchLoading] = useState(false);
@@ -45,8 +47,10 @@ export default function ConfirmPunchPage() {
       try {
         const emp = await fetchEmployeeByMatricule(matricule);
         setEmployee(emp);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err: unknown) {
+        const errorMessage =
+          err instanceof Error ? err.message : "Erreur inconnue";
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -60,7 +64,7 @@ export default function ConfirmPunchPage() {
     setPunchLoading(true);
     const now = new Date();
     const timeStr = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    
+
     try {
       const res = await fetch("/api/punch", {
         method: "POST",
@@ -78,10 +82,11 @@ export default function ConfirmPunchPage() {
         `${action === "in" ? "Entrée" : "Sortie"} enregistrée à ${timeStr}`,
         { duration: 3000 }
       );
-
       setTimeout(() => router.push("/punch"), 2000);
-    } catch (err: any) {
-      toast.error(err.message);
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Erreur inconnue";
+      toast.error(errorMessage);
     } finally {
       setPunchLoading(false);
     }
@@ -170,7 +175,10 @@ export default function ConfirmPunchPage() {
           <div className="flex flex-col items-center gap-4">
             <div className="relative">
               <img
-                src={employee.photoUrl || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"}
+                src={
+                  employee.photoUrl ||
+                  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                }
                 alt={`${employee.firstName} ${employee.lastName}`}
                 className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
               />

@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
 import { Search, User, PlusCircle, MoreHorizontal, Command } from "lucide-react";
 
 // Types
@@ -270,7 +269,7 @@ export default function IntelligentSearchBar() {
                 ) : query ? (
                   <div className="px-3 py-6 text-center">
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Aucun résultat pour "{query}"
+                      Aucun résultat pour &quot;{query}&quot;
                     </p>
                   </div>
                 ) : (

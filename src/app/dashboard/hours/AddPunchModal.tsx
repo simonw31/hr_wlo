@@ -1,6 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+// Retrait de "Card" de l'import car il n'est pas utilisé
+import { CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,7 +14,6 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Employee, Shift } from "./types";
 
 /**
@@ -45,9 +47,9 @@ function parseTimeFlexible(str: string): number {
   const matchDec = raw.match(/^(\d{1,2})\.(\d+)$/);
   if (matchDec) {
     const hh = parseInt(matchDec[1], 10);
-    const fractionStr = "0." + matchDec[2]; // ex. "0.5"
-    const fraction = parseFloat(fractionStr); // ex. 0.5
-    return hh + fraction * 60 / 60;
+    const fractionStr = "0." + matchDec[2];
+    const fraction = parseFloat(fractionStr);
+    return hh + fraction;
   }
 
   throw new Error(
@@ -81,8 +83,10 @@ export default function AddPunchModal({
     try {
       checkInDecimal = parseTimeFlexible(checkInStr);
       checkOutDecimal = parseTimeFlexible(checkOutStr);
-    } catch (error: any) {
-      alert(error.message);
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Erreur inconnue";
+      alert(message);
       return;
     }
 
@@ -117,7 +121,6 @@ export default function AddPunchModal({
     };
 
     try {
-      // On appelle la route "/api/time-records/create"
       const res = await fetch("/api/time-records/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -129,7 +132,6 @@ export default function AddPunchModal({
       }
       const newRecord = await res.json();
 
-      // On construit le Shift local
       const newShift: Shift = {
         id: newRecord.id,
         employeeId: selectedEmployeeId,
@@ -143,16 +145,18 @@ export default function AddPunchModal({
       };
       onAdd(newShift);
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Erreur inconnue";
       console.error(error);
-      alert(error.message);
+      alert(message);
     }
   }
 
   return (
     <div
       className="fixed inset-0 flex items-center justify-center bg-black/30 z-50"
-      onClick={(e) => e.stopPropagation()} // Empêche la fermeture
+      onClick={(e) => e.stopPropagation()}
     >
       <div
         className="bg-white p-4 rounded shadow w-80"
@@ -184,7 +188,7 @@ export default function AddPunchModal({
           </div>
 
           <div className="mb-4">
-            <Label>Heure d'entrée</Label>
+            <Label>Heure d&apos;entrée</Label>
             <Input
               type="text"
               value={checkInStr}

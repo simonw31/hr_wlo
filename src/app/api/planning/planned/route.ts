@@ -3,6 +3,15 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { parseISO } from "date-fns";
 
+interface PrismaShift {
+  id: string;
+  employeeId: string;
+  date: Date;
+  startHour: number;
+  endHour: number;
+  shiftType: string;
+}
+
 /**
  * Récupère les shifts planifiés (table Shift) pour la plage [start, end],
  * en excluant shiftType="real".
@@ -42,16 +51,15 @@ export async function GET(request: Request) {
           not: "real",
         },
       },
-      // include: { employee: true } si tu veux construire employeeName
     });
 
     // 2) Transformer le résultat pour respecter la structure Shift
-    const plannedShifts = shifts.map((s) => {
+    const plannedShifts = (shifts as PrismaShift[]).map((s: PrismaShift) => {
       const dateKey = s.date.toISOString().split("T")[0];
       return {
         id: s.id,
         employeeId: s.employeeId,
-        employeeName: "", // ou `${s.employee.firstName} ${s.employee.lastName}`
+        employeeName: "", // ou `${s.employee.firstName} ${s.employee.lastName}` si disponible
         startHour: s.startHour,
         endHour: s.endHour,
         dateKey,

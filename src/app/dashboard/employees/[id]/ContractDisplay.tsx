@@ -75,7 +75,7 @@ export default function ContractDisplay({ employeeId, contract }: ContractDispla
               Aucun contrat
             </h3>
             <p className="text-gray-500 mb-6">
-              Cet employé n'a pas encore de contrat enregistré.
+              Cet employé n&apos;a pas encore de contrat enregistré.
             </p>
             <Link href={`/dashboard/employees/${employeeId}/contract/new`}>
               <Button className="gap-2">
@@ -94,7 +94,6 @@ export default function ContractDisplay({ employeeId, contract }: ContractDispla
 
   return (
     <div className="space-y-6">
-      {/* ... Vos affichages existants du contrat */}
       {/* Historique des avenants */}
       <AmendmentList contractId={contract.id} />
       {/* En-tête avec statut */}

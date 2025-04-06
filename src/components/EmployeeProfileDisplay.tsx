@@ -2,7 +2,6 @@
 
 import React from "react";
 import { toast } from "react-hot-toast";
-import Image from "next/image";
 import Link from "next/link";
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -236,7 +235,7 @@ export default function EmployeeProfileDisplay({
         <CardHeader>
           <CardTitle className="text-xl font-semibold flex items-center gap-2">
             <Heart className="w-6 h-6 text-blue-600" />
-            Santé et contact d'urgence
+            Santé et contact d&apos;urgence
           </CardTitle>
         </CardHeader>
         <CardContent>

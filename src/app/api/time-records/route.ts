@@ -3,6 +3,13 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { parseISO } from "date-fns";
 
+interface TimeRecord {
+  id: string;
+  employeeId: string;
+  checkIn: string;
+  checkOut?: string | null;
+}
+
 /**
  * Récupère les timeRecords pour la plage [start, end],
  * puis les transforme en shifts "réels" (shiftType="real").
@@ -39,12 +46,11 @@ export async function GET(request: Request) {
           lte: end,
         },
       },
-      // Si tu veux inclure l’employé pour construire employeeName
-      // include: { employee: true },
+      // include: { employee: true } si besoin pour construire employeeName
     });
 
     // 2) Transformer chaque timeRecord en "shift réel"
-    const realShifts = timeRecords.map((tr) => {
+    const realShifts = (timeRecords as TimeRecord[]).map((tr: TimeRecord) => {
       const checkIn = new Date(tr.checkIn);
       const checkOut = tr.checkOut ? new Date(tr.checkOut) : checkIn;
 
@@ -60,8 +66,7 @@ export async function GET(request: Request) {
       return {
         id: tr.id,
         employeeId: tr.employeeId,
-        // employeeName: tr.employee ? `${tr.employee.firstName} ${tr.employee.lastName}` : "",
-        employeeName: "",
+        employeeName: "", // Remplir côté client si besoin
         startHour,
         endHour,
         dateKey,
@@ -73,9 +78,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ realShifts }, { status: 200 });
   } catch (error) {
     console.error("GET /api/time-records error:", error);
-    return NextResponse.json(
-      { error: "Erreur interne" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Erreur interne" }, { status: 500 });
   }
 }

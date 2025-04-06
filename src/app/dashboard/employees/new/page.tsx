@@ -46,7 +46,7 @@ export default function NewEmployeePage() {
   const [emergencyContactPhone, setEmergencyContactPhone] = useState("")
   const [transportMeans, setTransportMeans] = useState("")
 
-  // Disponibilités (jour par jour)
+  // Disponibilit&eacute;s (jour par jour)
   // On initialise un tableau de 7 objets (un par jour)
   const [availability, setAvailability] = useState<DayAvailability[]>(
     daysOfWeek.map((day) => ({
@@ -57,7 +57,7 @@ export default function NewEmployeePage() {
     }))
   )
 
-  // Handler : cocher/décocher "Disponible toute la journée"
+  // Handler : cocher/d&eacute;cocher "Disponible toute la journ&eacute;e"
   const handleAllDayChange = (index: number, checked: boolean) => {
     setAvailability((prev) =>
       prev.map((item, i) => {
@@ -94,11 +94,11 @@ export default function NewEmployeePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Construction du payload pour l'API
+    // Construction du payload pour l&#39;API
     // On convertit matricule en nombre si non vide
     const parsedMatricule = matricule ? parseInt(matricule) : undefined
 
-    // On prépare un objet "employee" + "contract" (pour les disponibilités)
+    // On pr&eacute;pare un objet "employee" + "contract" (pour les disponibilit&eacute;s)
     const payload = {
       employee: {
         firstName,
@@ -137,13 +137,13 @@ export default function NewEmployeePage() {
         body: JSON.stringify(payload),
       })
       if (res.ok) {
-        // Redirection vers la liste ou la page de l'employé
+        // Redirection vers la liste ou la page de l&#39;employ&eacute;
         router.push("/dashboard/employees")
       } else {
-        console.error("Erreur lors de la création du salarié")
+        console.error("Erreur lors de la cr&eacute;ation du salari&eacute;")
       }
     } catch (error) {
-      console.error("Erreur réseau :", error)
+      console.error("Erreur r&eacute;seau :", error)
     }
   }
 
@@ -151,13 +151,13 @@ export default function NewEmployeePage() {
     <form onSubmit={handleSubmit}>
       <Card className="shadow p-4 space-y-4">
         <CardHeader>
-          <CardTitle className="text-xl">Nouveau salarié</CardTitle>
+          <CardTitle className="text-xl">Nouveau salari&eacute;</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Coordonnées */}
+          {/* Coordonn&eacute;es */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label>Prénom</Label>
+              <Label>Pr&eacute;nom</Label>
               <Input
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
@@ -202,7 +202,7 @@ export default function NewEmployeePage() {
               </Select>
             </div>
             <div>
-              <Label>Nationalité</Label>
+              <Label>Nationalit&eacute;</Label>
               <Input
                 value={nationality}
                 onChange={(e) => setNationality(e.target.value)}
@@ -216,7 +216,7 @@ export default function NewEmployeePage() {
               />
             </div>
             <div className="col-span-2">
-              <Label>Complément d'adresse</Label>
+              <Label>Compl&eacute;ment d&apos;adresse</Label>
               <Input
                 value={address2}
                 onChange={(e) => setAddress2(e.target.value)}
@@ -247,24 +247,24 @@ export default function NewEmployeePage() {
             </div>
           </div>
 
-          {/* Santé */}
+          {/* Sant&eacute; */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label>Numéro de sécurité sociale</Label>
+              <Label>Num&eacute;ro de s&eacute;curit&eacute; sociale</Label>
               <Input
                 value={socialSecurityNumber}
                 onChange={(e) => setSocialSecurityNumber(e.target.value)}
               />
             </div>
             <div>
-              <Label>Personne à contacter</Label>
+              <Label>Personne &agrave; contacter</Label>
               <Input
                 value={emergencyContactName}
                 onChange={(e) => setEmergencyContactName(e.target.value)}
               />
             </div>
             <div>
-              <Label>Numéro d'urgence</Label>
+              <Label>Num&eacute;ro d&apos;urgence</Label>
               <Input
                 value={emergencyContactPhone}
                 onChange={(e) => setEmergencyContactPhone(e.target.value)}
@@ -281,10 +281,10 @@ export default function NewEmployeePage() {
             />
           </div>
 
-          {/* Disponibilités (jour par jour) */}
+          {/* Disponibilit&eacute;s (jour par jour) */}
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold">Disponibilités</h2>
-            {availability.map((avail, index) => (
+            <h2 className="text-lg font-semibold">Disponibilit&eacute;s</h2>
+            {availability.map((avail) => (
               <div
                 key={avail.day}
                 className="rounded-md border p-3 shadow-sm space-y-2"
@@ -299,23 +299,30 @@ export default function NewEmployeePage() {
                         type="checkbox"
                         checked={avail.allDay}
                         onChange={(e) =>
-                          handleAllDayChange(index, e.target.checked)
+                          handleAllDayChange(
+                            availability.indexOf(avail),
+                            e.target.checked
+                          )
                         }
                         className="mr-1 h-4 w-4"
                       />
-                      Disponible toute la journée
+                      Disponible toute la journ&eacute;e
                     </label>
                   </div>
                 </div>
                 {!avail.allDay && (
                   <div className="flex gap-4">
                     <div>
-                      <Label>Début</Label>
+                      <Label>D&eacute;but</Label>
                       <Input
                         type="time"
                         value={avail.startTime}
                         onChange={(e) =>
-                          handleTimeChange(index, "startTime", e.target.value)
+                          handleTimeChange(
+                            availability.indexOf(avail),
+                            "startTime",
+                            e.target.value
+                          )
                         }
                       />
                     </div>
@@ -325,7 +332,11 @@ export default function NewEmployeePage() {
                         type="time"
                         value={avail.endTime}
                         onChange={(e) =>
-                          handleTimeChange(index, "endTime", e.target.value)
+                          handleTimeChange(
+                            availability.indexOf(avail),
+                            "endTime",
+                            e.target.value
+                          )
                         }
                       />
                     </div>
@@ -337,7 +348,7 @@ export default function NewEmployeePage() {
 
           <div className="flex justify-end">
             <Button type="submit" className="px-4 py-2">
-              Créer le salarié
+              Cr&eacute;er le salari&eacute;
             </Button>
           </div>
         </CardContent>

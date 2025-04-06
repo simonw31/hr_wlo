@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
+import { useRouter } from "next/navigation";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch"; // Ajoutez cet import
+import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Plus, Trash2, Edit, Building2, Phone, Mail, MapPin, Briefcase, User } from "lucide-react";
 
@@ -70,7 +72,7 @@ export default function GeneralTab() {
   }
 
   function handleCompanyInfoChange(field: keyof CompanyInfo, value: string) {
-    setCompanyInfo(prev => ({ ...prev, [field]: value }));
+    setCompanyInfo((prev) => ({ ...prev, [field]: value }));
   }
 
   function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -78,7 +80,7 @@ export default function GeneralTab() {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        handleCompanyInfoChange('logo', reader.result as string);
+        handleCompanyInfoChange("logo", reader.result as string);
       };
       reader.readAsDataURL(file);
     }
@@ -90,7 +92,7 @@ export default function GeneralTab() {
       <div className="bg-white p-6 rounded-lg border border-gray-200 space-y-6">
         <h2 className="text-xl font-semibold flex items-center gap-2 text-gray-900">
           <Building2 className="w-5 h-5 text-blue-500" />
-          Informations de l'entreprise
+          Informations de l&apos;entreprise
         </h2>
 
         <div className="grid gap-6 md:grid-cols-2">
@@ -103,7 +105,7 @@ export default function GeneralTab() {
               />
             )}
             <div className="flex-1">
-              <Label htmlFor="logo">Logo de l'entreprise</Label>
+              <Label htmlFor="logo">Logo de l&apos;entreprise</Label>
               <Input
                 id="logo"
                 type="file"
@@ -115,11 +117,11 @@ export default function GeneralTab() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="companyName">Nom de l'entreprise</Label>
+            <Label htmlFor="companyName">Nom de l&apos;entreprise</Label>
             <Input
               id="companyName"
               value={companyInfo.name}
-              onChange={(e) => handleCompanyInfoChange('name', e.target.value)}
+              onChange={(e) => handleCompanyInfoChange("name", e.target.value)}
               placeholder="Nom de votre entreprise"
             />
           </div>
@@ -129,7 +131,7 @@ export default function GeneralTab() {
             <Input
               id="siret"
               value={companyInfo.siret}
-              onChange={(e) => handleCompanyInfoChange('siret', e.target.value)}
+              onChange={(e) => handleCompanyInfoChange("siret", e.target.value)}
               placeholder="123 456 789 00012"
             />
           </div>
@@ -142,7 +144,7 @@ export default function GeneralTab() {
             <Input
               id="phone"
               value={companyInfo.phone}
-              onChange={(e) => handleCompanyInfoChange('phone', e.target.value)}
+              onChange={(e) => handleCompanyInfoChange("phone", e.target.value)}
               placeholder="+33 1 23 45 67 89"
             />
           </div>
@@ -156,7 +158,7 @@ export default function GeneralTab() {
               id="email"
               type="email"
               value={companyInfo.email}
-              onChange={(e) => handleCompanyInfoChange('email', e.target.value)}
+              onChange={(e) => handleCompanyInfoChange("email", e.target.value)}
               placeholder="contact@entreprise.fr"
             />
           </div>
@@ -169,7 +171,7 @@ export default function GeneralTab() {
             <Input
               id="address"
               value={companyInfo.address}
-              onChange={(e) => handleCompanyInfoChange('address', e.target.value)}
+              onChange={(e) => handleCompanyInfoChange("address", e.target.value)}
               placeholder="123 rue Example, 75000 Paris"
             />
           </div>
@@ -182,7 +184,7 @@ export default function GeneralTab() {
             <Input
               id="apeCode"
               value={companyInfo.apeCode}
-              onChange={(e) => handleCompanyInfoChange('apeCode', e.target.value)}
+              onChange={(e) => handleCompanyInfoChange("apeCode", e.target.value)}
               placeholder="6201Z"
             />
           </div>
@@ -195,7 +197,7 @@ export default function GeneralTab() {
             <Input
               id="director"
               value={companyInfo.director}
-              onChange={(e) => handleCompanyInfoChange('director', e.target.value)}
+              onChange={(e) => handleCompanyInfoChange("director", e.target.value)}
               placeholder="Jean Dupont"
             />
           </div>
@@ -277,7 +279,7 @@ export default function GeneralTab() {
             </table>
           </div>
         ) : (
-          <p className="text-sm text-gray-500">Aucun compte pour l'instant.</p>
+          <p className="text-sm text-gray-500">Aucun compte pour l&apos;instant.</p>
         )}
 
         {/* Formulaire d'ajout de compte */}
@@ -286,7 +288,7 @@ export default function GeneralTab() {
             <Label htmlFor="newUsername">Identifiant</Label>
             <Input
               id="newUsername"
-              placeholder="Nom d'utilisateur"
+              placeholder="Nom d&apos;utilisateur"
               value={newUsername}
               onChange={(e) => setNewUsername(e.target.value)}
             />

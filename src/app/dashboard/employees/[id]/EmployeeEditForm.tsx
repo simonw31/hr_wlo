@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,8 +16,6 @@ import {
 } from "@/components/ui/select";
 import {
   User,
-  Calendar,
-  Flag,
   MapPin,
   CreditCard,
   Heart,
@@ -121,7 +120,7 @@ export default function EmployeeEditForm({ employee }: { employee: Employee }) {
   const handleAvailabilityChange = (
     index: number,
     field: keyof AvailabilityInterval,
-    value: any
+    value: string | boolean
   ) => {
     setAvailabilities(prev =>
       prev.map((item, i) => {
@@ -184,9 +183,14 @@ export default function EmployeeEditForm({ employee }: { employee: Employee }) {
       {/* En-tête avec photo */}
       <div className="flex items-center gap-6 p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
         <div className="relative">
-          <img
-            src={employee.photoUrl || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"}
+          <Image
+            src={
+              employee.photoUrl ||
+              "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+            }
             alt={`${formData.firstName} ${formData.lastName}`}
+            width={96}
+            height={96}
             className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
           />
           <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-green-400 border-4 border-white"></div>
@@ -203,7 +207,10 @@ export default function EmployeeEditForm({ employee }: { employee: Employee }) {
       </div>
 
       {/* Informations personnelles */}
-      <Section title="Informations personnelles" icon={<User className="w-6 h-6 text-blue-600" />}>
+      <Section
+        title="Informations personnelles"
+        icon={<User className="w-6 h-6 text-blue-600" />}
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label>Prénom</Label>
@@ -232,8 +239,8 @@ export default function EmployeeEditForm({ employee }: { employee: Employee }) {
           </div>
           <div>
             <Label>Sexe</Label>
-            <Select 
-              value={formData.sex} 
+            <Select
+              value={formData.sex}
               onValueChange={(val) => handleInputChange("sex", val)}
             >
               <SelectTrigger>
@@ -268,7 +275,7 @@ export default function EmployeeEditForm({ employee }: { employee: Employee }) {
             />
           </div>
           <div className="md:col-span-2">
-            <Label>Complément d'adresse</Label>
+            <Label>Complément d&apos;adresse</Label>
             <Input
               value={formData.address2}
               onChange={(e) => handleInputChange("address2", e.target.value)}
@@ -295,7 +302,10 @@ export default function EmployeeEditForm({ employee }: { employee: Employee }) {
       </Section>
 
       {/* Informations bancaires */}
-      <Section title="Informations bancaires" icon={<CreditCard className="w-6 h-6 text-blue-600" />}>
+      <Section
+        title="Informations bancaires"
+        icon={<CreditCard className="w-6 h-6 text-blue-600" />}
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label>IBAN</Label>
@@ -317,29 +327,38 @@ export default function EmployeeEditForm({ employee }: { employee: Employee }) {
       </Section>
 
       {/* Santé */}
-      <Section title="Santé et contact d'urgence" icon={<Heart className="w-6 h-6 text-blue-600" />}>
+      <Section
+        title="Santé et contact d&apos;urgence"
+        icon={<Heart className="w-6 h-6 text-blue-600" />}
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="md:col-span-2">
             <Label>Numéro de sécurité sociale</Label>
             <Input
               value={formData.socialSecurityNumber}
-              onChange={(e) => handleInputChange("socialSecurityNumber", e.target.value)}
+              onChange={(e) =>
+                handleInputChange("socialSecurityNumber", e.target.value)
+              }
               className="mt-1"
             />
           </div>
           <div>
-            <Label>Contact d'urgence</Label>
+            <Label>Contact d&apos;urgence</Label>
             <Input
               value={formData.emergencyContactName}
-              onChange={(e) => handleInputChange("emergencyContactName", e.target.value)}
+              onChange={(e) =>
+                handleInputChange("emergencyContactName", e.target.value)
+              }
               className="mt-1"
             />
           </div>
           <div>
-            <Label>Téléphone d'urgence</Label>
+            <Label>Téléphone d&apos;urgence</Label>
             <Input
               value={formData.emergencyContactPhone}
-              onChange={(e) => handleInputChange("emergencyContactPhone", e.target.value)}
+              onChange={(e) =>
+                handleInputChange("emergencyContactPhone", e.target.value)
+              }
               className="mt-1"
             />
           </div>
@@ -372,7 +391,9 @@ export default function EmployeeEditForm({ employee }: { employee: Employee }) {
                     <Label>Jour</Label>
                     <Select
                       value={avail.day}
-                      onValueChange={(val) => handleAvailabilityChange(index, "day", val)}
+                      onValueChange={(val) =>
+                        handleAvailabilityChange(index, "day", val)
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Sélectionnez un jour" />

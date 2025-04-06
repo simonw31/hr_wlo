@@ -1,11 +1,29 @@
 import { prisma } from '@/lib/prisma';
 import PlanningEditorPageClient from './PlanningEditorPageClient';
 
+interface Amendment {
+  startDate: string;
+  endDate?: string | null;
+  newHoursPerWeek: number | null;
+}
+
+interface Contract {
+  hoursPerWeek: number | null;
+  amendments?: Amendment[];
+}
+
+interface EmployeeDB {
+  id: string;
+  firstName: string;
+  lastName: string;
+  contracts?: Contract[];
+}
+
 export default async function PlanningEditorPage() {
   const planningDate = new Date();
 
   // Récupérer les employés avec leurs contrats et avenants
-  const employeesFromDB = await prisma.employee.findMany({
+  const employeesFromDB = (await prisma.employee.findMany({
     include: { 
       contracts: {
         include: {
@@ -13,10 +31,10 @@ export default async function PlanningEditorPage() {
         },
       },
     },
-  });
+  })) as EmployeeDB[];
 
   // Construire la structure attendue par le composant client
-  const employees = employeesFromDB.map((emp) => {
+  const employees = employeesFromDB.map((emp: EmployeeDB) => {
     // Sélectionner le premier contrat
     const contract = emp.contracts?.[0];
     // Par défaut, utiliser les heures du contrat de base
@@ -24,13 +42,12 @@ export default async function PlanningEditorPage() {
 
     if (contract && contract.amendments && contract.amendments.length > 0) {
       // Vérifier s'il existe un avenant actif pour la période planifiée
-      const activeAmendment = contract.amendments.find((amendment) => {
+      const activeAmendment = contract.amendments.find((amendment: Amendment) => {
         const startDate = new Date(amendment.startDate);
         const endDate = amendment.endDate ? new Date(amendment.endDate) : null;
         // L'avenant est actif si la date de planification est entre startDate et endDate (ou sans fin définie)
         return planningDate >= startDate && (endDate ? planningDate <= endDate : true);
       });
-      // Si un avenant actif existe et que newHoursPerWeek n'est pas null, on l'utilise
       if (activeAmendment && activeAmendment.newHoursPerWeek !== null) {
         contractHours = activeAmendment.newHoursPerWeek;
       }

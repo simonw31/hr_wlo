@@ -1,12 +1,17 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { 
+import {
   FileSignature,
   Calendar,
   Clock,
@@ -14,7 +19,7 @@ import {
   AlertCircle,
   History,
   CheckCircle2,
-  TimerOff
+  TimerOff,
 } from "lucide-react";
 
 type Amendment = {
@@ -38,7 +43,8 @@ export default function AmendmentList({ contractId }: AmendmentListProps) {
     const fetchAmendments = async () => {
       try {
         const res = await fetch(`/api/contracts/${contractId}/amendments`);
-        if (!res.ok) throw new Error("Erreur lors du chargement des avenants");
+        if (!res.ok)
+          throw new Error("Erreur lors du chargement des avenants");
         const data = await res.json();
         setAmendments(data);
         setError(null);
@@ -55,10 +61,13 @@ export default function AmendmentList({ contractId }: AmendmentListProps) {
 
   const handleDelete = async (amendmentId: string) => {
     try {
-      const res = await fetch(`/api/contracts/${contractId}/amendments/${amendmentId}`, {
-        method: "DELETE",
-      });
-      
+      const res = await fetch(
+        `/api/contracts/${contractId}/amendments/${amendmentId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
       if (res.ok) {
         setAmendments((prev) => prev.filter((a) => a.id !== amendmentId));
         toast.success("Avenant supprimé avec succès");
@@ -66,7 +75,7 @@ export default function AmendmentList({ contractId }: AmendmentListProps) {
         throw new Error("Erreur lors de la suppression");
       }
     } catch (error) {
-      toast.error("Erreur lors de la suppression de l'avenant");
+      toast.error("Erreur lors de la suppression de l&apos;avenant");
       console.error("Erreur réseau lors de la suppression :", error);
     }
   };
@@ -107,7 +116,7 @@ export default function AmendmentList({ contractId }: AmendmentListProps) {
           Aucun avenant
         </h3>
         <p className="text-gray-500">
-          Aucun avenant n'a été enregistré pour ce contrat.
+          Aucun avenant n&apos;a été enregistré pour ce contrat.
         </p>
       </div>
     );
@@ -122,24 +131,33 @@ export default function AmendmentList({ contractId }: AmendmentListProps) {
 
       <div className="grid gap-4">
         {amendments.map((amendment) => {
-          const startDate = format(new Date(amendment.startDate), "d MMMM yyyy", { locale: fr });
-          const endDate = amendment.endDate 
-            ? format(new Date(amendment.endDate), "d MMMM yyyy", { locale: fr })
+          const startDate = format(
+            new Date(amendment.startDate),
+            "d MMMM yyyy",
+            { locale: fr }
+          );
+          const endDate = amendment.endDate
+            ? format(new Date(amendment.endDate), "d MMMM yyyy", {
+                locale: fr,
+              })
             : null;
-          
-          const isActive = new Date(amendment.startDate) <= new Date() && 
+
+          const isActive =
+            new Date(amendment.startDate) <= new Date() &&
             (!amendment.endDate || new Date(amendment.endDate) >= new Date());
 
           return (
-            <Card 
-              key={amendment.id} 
+            <Card
+              key={amendment.id}
               className="border-none shadow-sm hover:shadow-md transition-shadow duration-200 animate-fadeIn"
             >
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${
-                    amendment.isTemporary ? 'bg-amber-50' : 'bg-emerald-50'
-                  }`}>
+                  <div
+                    className={`p-2 rounded-lg ${
+                      amendment.isTemporary ? "bg-amber-50" : "bg-emerald-50"
+                    }`}
+                  >
                     {amendment.isTemporary ? (
                       <TimerOff className="w-5 h-5 text-amber-600" />
                     ) : (
@@ -148,10 +166,17 @@ export default function AmendmentList({ contractId }: AmendmentListProps) {
                   </div>
                   <div>
                     <CardTitle className="text-base font-semibold">
-                      {amendment.isTemporary ? "Avenant temporaire" : "Avenant permanent"}
+                      {amendment.isTemporary
+                        ? "Avenant temporaire"
+                        : "Avenant permanent"}
                     </CardTitle>
                     <p className="text-sm text-gray-500">
-                      {isActive ? "En cours" : amendment.endDate && new Date(amendment.endDate) < new Date() ? "Terminé" : "À venir"}
+                      {isActive
+                        ? "En cours"
+                        : amendment.endDate &&
+                          new Date(amendment.endDate) < new Date()
+                        ? "Terminé"
+                        : "À venir"}
                     </p>
                   </div>
                 </div>
@@ -179,7 +204,9 @@ export default function AmendmentList({ contractId }: AmendmentListProps) {
                   <div className="flex items-center gap-2">
                     <Clock className="w-4 h-4 text-gray-400" />
                     <div>
-                      <p className="text-sm text-gray-500">Heures hebdomadaires</p>
+                      <p className="text-sm text-gray-500">
+                        Heures hebdomadaires
+                      </p>
                       <p className="font-medium">
                         {amendment.newHoursPerWeek !== null
                           ? `${amendment.newHoursPerWeek}h`
@@ -190,6 +217,8 @@ export default function AmendmentList({ contractId }: AmendmentListProps) {
                 </div>
 
                 {isActive && (
+                  // Désactiver ESLint pour cette ligne pour échapper l'apostrophe
+                  // eslint-disable-next-line react/no-unescaped-entities
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center gap-2">
                     <FileSignature className="w-4 h-4 text-blue-600" />
                     <p className="text-sm text-blue-700">
