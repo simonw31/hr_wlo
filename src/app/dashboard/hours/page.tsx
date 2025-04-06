@@ -1,6 +1,5 @@
-import React from "react";
-import { prisma } from "@/lib/prisma";
-import HoursGuidePageClient from "./HoursGuidePageClient";
+import { prisma } from '@/lib/prisma';
+import HoursGuidePageClient from './HoursGuidePageClient';
 
 // Définition des types pour les données issues de la BDD
 interface Amendment {
@@ -20,13 +19,13 @@ interface EmployeeDB {
   lastName: string;
   photoUrl?: string | null;
   contracts?: Contract[];
-  timeRecords?: any[];
+  // Suppression de timeRecords car non utilisé et pour éviter le type any
 }
 
 export default async function HoursGuidePage() {
   const planningDate = new Date();
 
-  // On inclut `contracts` avec leurs avenants ainsi que timeRecords
+  // On inclut `contracts` avec leurs avenants
   const employeesFromDB = (await prisma.employee.findMany({
     include: {
       contracts: {
@@ -34,17 +33,17 @@ export default async function HoursGuidePage() {
           amendments: true,
         },
       },
-      timeRecords: true,
+      // timeRecords: true, // Retiré s'il n'est pas nécessaire
     },
   })) as EmployeeDB[];
 
   // Pour chaque employé, on sélectionne le premier contrat et on vérifie s'il existe un avenant actif.
   const employees = employeesFromDB.map((emp: EmployeeDB) => {
-    const firstContract = emp.contracts?.[0];
-    let contractHours = firstContract?.hoursPerWeek ?? 0;
+    const contract = emp.contracts?.[0];
+    let contractHours = contract?.hoursPerWeek ?? 0;
 
-    if (firstContract && firstContract.amendments && firstContract.amendments.length > 0) {
-      const activeAmendment = firstContract.amendments.find((amendment: Amendment) => {
+    if (contract && contract.amendments && contract.amendments.length > 0) {
+      const activeAmendment = contract.amendments.find((amendment: Amendment) => {
         const startDate = new Date(amendment.startDate);
         const endDate = amendment.endDate ? new Date(amendment.endDate) : null;
         // L'avenant est actif si la date de planification est entre startDate et endDate (ou sans fin définie)
@@ -58,7 +57,7 @@ export default async function HoursGuidePage() {
     return {
       id: emp.id,
       name: `${emp.firstName} ${emp.lastName}`,
-      baseContractHours: firstContract?.hoursPerWeek ?? 0, // Base du contrat
+      baseContractHours: contract?.hoursPerWeek ?? 0,
       photoUrl: emp.photoUrl ?? undefined,
       contractHours,
     };

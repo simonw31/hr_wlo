@@ -120,7 +120,7 @@ export default function DashboardPage() {
           </Select>
           <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
             <CalendarDays className="mr-2 h-4 w-4" />
-            <span className="hidden sm:inline">Période sélectionnée : </span>
+            <span className="hidden sm:inline">Période sélectionnée :&nbsp; </span>
             {period === "day"
               ? "Aujourd'hui"
               : period === "week"

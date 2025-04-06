@@ -1,6 +1,6 @@
 // app/api/pay-periods/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { getPayPeriodById, updatePayPeriod, deletePayPeriod } from "@/lib/services/payPeriodService";
+import { updatePayPeriod, deletePayPeriod } from "@/lib/services/payPeriodService";
 
 export async function DELETE(
   request: NextRequest,

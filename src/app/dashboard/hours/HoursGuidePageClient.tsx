@@ -1,8 +1,7 @@
-// app/dashboard/hours/HoursGuidePageClient.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { format, addDays, subDays, startOfMonth, endOfMonth } from "date-fns";
+import { format, addDays, subDays } from "date-fns";
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DailyHoursGrid from "./DailyHoursGrid";
@@ -18,26 +17,31 @@ type HoursGuidePageClientProps = {
   employees: Employee[];
 };
 
-export default function HoursGuidePageClient({ employees }: HoursGuidePageClientProps) {
+export default function HoursGuidePageClient({
+  employees,
+}: HoursGuidePageClientProps) {
   const [view, setView] = useState<"day" | "week" | "pay">("day");
-  // Pour tester, on peut initialiser currentDay avec une date connue si besoin
   const [currentDay, setCurrentDay] = useState(new Date());
   const dayLabel = format(currentDay, "EEEE dd MMM yyyy");
 
-  // Charger les données mensuelles via le hook et récupérer mutate
+  // Charger les données mensuelles via le hook et récupérer mutateReal
   const {
     realShifts: monthlyRealShifts,
     plannedShifts: monthlyPlannedShifts,
     isLoading,
     isError,
     mutateReal,
-    mutatePlanned,
+    // mutatePlanned est supprimé puisqu'il n'est pas utilisé
   } = useMonthlyShifts(currentDay);
 
   // Filtrer pour obtenir les shifts du jour
   const dayStr = format(currentDay, "yyyy-MM-dd");
-  const dailyReal: Shift[] = monthlyRealShifts.filter((s: Shift) => s.dateKey === dayStr);
-  const dailyPlanned: Shift[] = monthlyPlannedShifts.filter((s: Shift) => s.dateKey === dayStr);
+  const dailyReal: Shift[] = monthlyRealShifts.filter(
+    (s: Shift) => s.dateKey === dayStr
+  );
+  const dailyPlanned: Shift[] = monthlyPlannedShifts.filter(
+    (s: Shift) => s.dateKey === dayStr
+  );
 
   // États pour l'édition et l'ajout
   const [editingShift, setEditingShift] = useState<Shift | null>(null);
@@ -54,7 +58,7 @@ export default function HoursGuidePageClient({ employees }: HoursGuidePageClient
   }
 
   // Callback pour gérer le clic sur un shift
-  function handleShiftClick(shift: Shift, e: React.MouseEvent) {
+  function handleShiftClick(shift: Shift, _e: React.MouseEvent) {
     console.log("Shift cliqué :", shift);
     setEditingShift(shift);
   }
@@ -74,7 +78,6 @@ export default function HoursGuidePageClient({ employees }: HoursGuidePageClient
         const data = await res.json();
         throw new Error(data.error || "Erreur mise à jour shift");
       }
-      // Optionnel : revalidation ou mise à jour locale via mutate
       await mutateReal();
     } catch (error) {
       console.error(error);
@@ -145,7 +148,10 @@ export default function HoursGuidePageClient({ employees }: HoursGuidePageClient
                 Jour suivant
                 <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
-              <Button variant="default" onClick={() => setShowAddPunchModal(true)}>
+              <Button
+                variant="default"
+                onClick={() => setShowAddPunchModal(true)}
+              >
                 Ajouter pointage
               </Button>
             </div>
@@ -160,7 +166,7 @@ export default function HoursGuidePageClient({ employees }: HoursGuidePageClient
                 employees={employees}
                 plannedShifts={dailyPlanned}
                 realShifts={dailyReal}
-                onShiftClick={(shift, e) => handleShiftClick(shift, e)}
+                onShiftClick={(shift, _e) => handleShiftClick(shift, _e)}
               />
             )}
           </CardContent>
@@ -199,10 +205,6 @@ export default function HoursGuidePageClient({ employees }: HoursGuidePageClient
           onClose={() => setShowAddPunchModal(false)}
           onAdd={(newShift: Shift) => {
             console.log("Nouveau shift ajouté :", newShift);
-            // Mettez à jour le cache SWR pour les shifts réels en appelant mutateReal
-            // Vous pouvez aussi utiliser une mise à jour optimiste si vous le souhaitez :
-            // mutateReal([...monthlyRealShifts, newShift], false);
-            // Ici, on lance une revalidation
             mutateReal();
           }}
         />
