@@ -1,4 +1,3 @@
-// src/app/api/employees/[id]/route.ts
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
@@ -35,7 +34,7 @@ export async function PUT(
   request: Request,
   context: unknown
 ): Promise<NextResponse> {
-  // Effectuer un cast pour extraire params
+  // Extraction des paramètres
   const { params } = context as { params: RouteParams };
 
   try {
@@ -58,7 +57,7 @@ export async function PUT(
       availabilities,
     } = body;
 
-    // Récupérer l'employé avec ses contrats afin d'obtenir l'ID du contrat actif (on prend le premier)
+    // Récupérer l'employé avec ses contrats
     const employee = await prisma.employee.findUnique({
       where: { id: params.id },
       include: { contracts: { include: { availability: true } } },
@@ -88,7 +87,7 @@ export async function PUT(
       },
     });
 
-    // Si l'employé possède au moins un contrat, on met à jour les disponibilités du premier contrat
+    // Mise à jour des disponibilités du premier contrat, s'il existe
     let updatedContract = null;
     if (employee.contracts && employee.contracts.length > 0) {
       const contractId = employee.contracts[0].id;
@@ -99,7 +98,7 @@ export async function PUT(
             deleteMany: {}, // Supprime toutes les disponibilités actuelles
             create: Array.isArray(availabilities)
               ? availabilities.map((avail: AvailabilityInput) => ({
-                  day: avail.day,
+                  day: avail.day as "Lundi" | "Mardi" | "Mercredi" | "Jeudi" | "Vendredi" | "Samedi" | "Dimanche",
                   allDay: avail.allDay,
                   startTime: avail.allDay ? null : avail.startTime,
                   endTime: avail.allDay ? null : avail.endTime,
