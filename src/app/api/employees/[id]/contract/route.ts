@@ -1,6 +1,7 @@
-// src/app/api/employees/[id]/contract/route.ts
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+
+type ContractStatus = "EN_CONTRAT" | "DEMISSION" | "AUTRE";
 
 interface AvailabilityInput {
   day: string;
@@ -23,7 +24,6 @@ export async function POST(
   request: Request,
   context: unknown
 ): Promise<NextResponse> {
-  // Cast du contexte pour extraire params
   const { params } = context as { params: { id: string } };
 
   try {
@@ -48,24 +48,22 @@ export async function POST(
     });
 
     if (existingContract) {
-      console.warn("Un contrat existe déjà pour cet employé, suppression pour forcer la création.");
-      // Supprimer d'abord les disponibilités associées
+      console.warn(
+        "Un contrat existe déjà pour cet employé, suppression pour forcer la création."
+      );
       await prisma.availabilityInterval.deleteMany({
         where: { contractId: existingContract.id },
       });
-      // Puis supprimer le contrat
       await prisma.contract.delete({ where: { id: existingContract.id } });
     }
 
-    // Création du contrat pour l'employé, en gérant le champ endDate pour les CDD
     const newContract = await prisma.contract.create({
       data: {
         contractType: contractType || null,
         role: role || null,
         hoursPerWeek: hoursPerWeek ? parseInt(hoursPerWeek.toString(), 10) : null,
-        status: status || "EN_CONTRAT",
+        status: status ? (status as ContractStatus) : "EN_CONTRAT",
         resignationDate: resignationDate ? new Date(resignationDate) : null,
-        // Enregistrer endDate uniquement si le type de contrat est "CDD"
         endDate: contractType === "CDD" && endDate ? new Date(endDate) : null,
         employee: {
           connect: { id },
