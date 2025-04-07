@@ -19,13 +19,13 @@ export default async function ContractEditPage(props: unknown) {
     startTime: string | null;
     endTime: string | null;
   }
-  // Modification ici : role est de type string | null
+  // Modification ici : role et status sont de type string | null
   interface PrismaContract {
     id: string;
     contractType: string | null;
     role: string | null;
     hoursPerWeek: number | null;
-    status: string;
+    status: string | null;
     resignationDate: Date | null;
     endDate: Date | null;
     availability: PrismaAvailability[];
@@ -59,6 +59,7 @@ export default async function ContractEditPage(props: unknown) {
       ...contract,
       contractType: contract.contractType,
       role: contract.role || "",
+      status: contract.status || "EN_CONTRAT", // Assure que status est une string
       resignationDate: contract.resignationDate
         ? new Date(contract.resignationDate).toISOString().split("T")[0]
         : "",
