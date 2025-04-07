@@ -5,15 +5,13 @@ export const dynamicParams = true;
 import { prisma } from "@/lib/prisma";
 import ContractEditForm from "./ContractEditForm";
 
-// Nous ne déclarons pas explicitement la forme de props ici
+// Nous forçons l'assertion pour que props soit du type attendu par Next.js
 export default async function ContractEditPage(props: unknown) {
-  // Forçons l'assertion pour que props soit du type attendu par Next.js :
-  // Ici nous déclarons que props est un objet avec une propriété params qui est une promesse résolvant un objet { id: string }
   const { params } = props as { params: Promise<{ id: string }> };
   const { id } = await params;
   const employeeId = id;
 
-  // Récupération du contrat via employeeId
+  // Interfaces pour typer les données
   interface PrismaAvailability {
     id: string;
     day: string;
@@ -21,10 +19,11 @@ export default async function ContractEditPage(props: unknown) {
     startTime: string | null;
     endTime: string | null;
   }
+  // Modification ici : role est de type string | null
   interface PrismaContract {
     id: string;
     contractType: string | null;
-    role: string;
+    role: string | null;
     hoursPerWeek: number | null;
     status: string;
     resignationDate: Date | null;
@@ -59,6 +58,7 @@ export default async function ContractEditPage(props: unknown) {
     editContract = {
       ...contract,
       contractType: contract.contractType,
+      role: contract.role || "",
       resignationDate: contract.resignationDate
         ? new Date(contract.resignationDate).toISOString().split("T")[0]
         : "",
