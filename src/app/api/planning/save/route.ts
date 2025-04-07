@@ -1,4 +1,3 @@
-// app/api/planning/save/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
@@ -42,12 +41,12 @@ export async function POST(request: Request): Promise<NextResponse> {
     // Supprimer les shifts existants pour ce jour
     await prisma.shift.deleteMany({ where: { date: day } });
 
-    // Créer les nouveaux shifts
+    // Créer les nouveaux shifts en convertissant startHour et endHour en nombres
     await prisma.shift.createMany({
       data: shifts.map((shift: ShiftInput) => ({
         date: day,
-        startHour: shift.startHour,
-        endHour: shift.endHour,
+        startHour: parseFloat(shift.startHour),
+        endHour: parseFloat(shift.endHour),
         shiftType: shift.shiftType,
         employeeId: shift.employeeId,
       })),
