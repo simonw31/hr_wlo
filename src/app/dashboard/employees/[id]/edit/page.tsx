@@ -1,4 +1,3 @@
-// /app/dashboard/employees/[id]/edit/page.tsx
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const dynamicParams = true;
@@ -15,17 +14,22 @@ interface AvailabilityInterval {
   endTime: string | null;
 }
 
-export default async function EmployeeEditPage({ params }: { params: { id: string } }) {
-  // Extraction de l'ID de l'employé depuis le contexte
-  const id = params.id;
-
-  // Récupérer l'employé avec ses contrats (notez l'utilisation de "contracts" au pluriel)
+// On déclare explicitement que params est une promesse résolvant un objet { id: string }
+export default async function EmployeeEditPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  // Attendre la résolution de params pour obtenir l'objet { id: string }
+  const { id } = await params;
+  
+  // Récupérer l'employé avec ses contrats
   const employee = await prisma.employee.findUnique({
     where: { id },
     include: {
       contracts: {
         include: {
-          availability: true, // Récupère les disponibilités depuis chaque contrat
+          availability: true,
         },
       },
     },
@@ -44,7 +48,6 @@ export default async function EmployeeEditPage({ params }: { params: { id: strin
     dateOfBirth: employee.dateOfBirth
       ? new Date(employee.dateOfBirth).toISOString().split("T")[0]
       : "",
-    // On ajoute une propriété "availabilities" à partir du premier contrat
     availabilities:
       firstContract?.availability.map((avail: AvailabilityInterval) => ({
         id: avail.id,
@@ -53,7 +56,6 @@ export default async function EmployeeEditPage({ params }: { params: { id: strin
         startTime: avail.startTime ?? "",
         endTime: avail.endTime ?? "",
       })) || [],
-    // Vous pouvez ajouter ici d'autres informations du contrat si nécessaire
   };
 
   return <EmployeeEditForm employee={editEmployee} />;
