@@ -1,13 +1,27 @@
-// app/api/time-records/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { parseISO } from "date-fns";
 
+// Interface correspondant aux données renvoyées par Prisma
+interface TimeRecordFromDB {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  employeeId: string;
+  date: Date;
+  checkIn: Date;
+  checkOut: Date | null;
+}
+
+// Interface utilisée pour la réponse finale (si besoin)
 interface TimeRecord {
   id: string;
   employeeId: string;
-  checkIn: string;
-  checkOut?: string | null;
+  checkIn: number; // heure décimale
+  endHour: number;
+  dateKey: string;
+  shiftType: string;
+  // éventuellement d'autres propriétés...
 }
 
 /**
@@ -38,21 +52,22 @@ export async function GET(request: Request) {
       );
     }
 
-    // 1) Récupérer les timeRecords pour la plage
-    const timeRecords = await prisma.timeRecord.findMany({
+    // Récupérer les timeRecords pour la plage
+    const timeRecordsFromDB = (await prisma.timeRecord.findMany({
       where: {
         date: {
           gte: start,
           lte: end,
         },
       },
-      // include: { employee: true } si besoin pour construire employeeName
-    });
+      // Vous pouvez inclure d'autres relations si nécessaire
+    })) as TimeRecordFromDB[];
 
-    // 2) Transformer chaque timeRecord en "shift réel"
-    const realShifts = (timeRecords as TimeRecord[]).map((tr: TimeRecord) => {
-      const checkIn = new Date(tr.checkIn);
-      const checkOut = tr.checkOut ? new Date(tr.checkOut) : checkIn;
+    // Transformer chaque timeRecord en shift "réel"
+    const realShifts: TimeRecord[] = timeRecordsFromDB.map((tr) => {
+      // Utiliser directement les Dates renvoyées par Prisma
+      const checkIn = tr.checkIn;
+      const checkOut = tr.checkOut ? tr.checkOut : checkIn;
 
       const startHour = parseFloat(
         (checkIn.getUTCHours() + checkIn.getUTCMinutes() / 60).toFixed(2)
@@ -66,12 +81,10 @@ export async function GET(request: Request) {
       return {
         id: tr.id,
         employeeId: tr.employeeId,
-        employeeName: "", // Remplir côté client si besoin
-        startHour,
+        checkIn: startHour,
         endHour,
         dateKey,
         shiftType: "real",
-        category: "real" as const,
       };
     });
 
