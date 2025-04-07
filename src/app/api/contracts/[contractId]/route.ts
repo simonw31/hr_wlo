@@ -36,14 +36,13 @@ export async function PUT(
         contractType,
         role,
         hoursPerWeek: hoursPerWeek ? parseInt(hoursPerWeek.toString(), 10) : null,
-        // Conversion forcée du string en ContractStatus (localement défini)
         status: status as ContractStatus,
         resignationDate: resignationDate ? new Date(resignationDate) : null,
         availability: {
           deleteMany: {},
           create: Array.isArray(availability)
             ? availability.map((a: AvailabilityInput) => ({
-                day: a.day,
+                day: a.day as "Lundi" | "Mardi" | "Mercredi" | "Jeudi" | "Vendredi" | "Samedi" | "Dimanche",
                 allDay: a.allDay,
                 startTime: a.allDay ? null : a.startTime,
                 endTime: a.allDay ? null : a.endTime,
