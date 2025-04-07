@@ -5,55 +5,50 @@ export const dynamicParams = true;
 import { prisma } from "@/lib/prisma";
 import ContractEditForm from "./ContractEditForm";
 
-// Typage des props de page avec params de type objet synchronisé
-interface PageProps {
-  params: { id: string };
-}
-
-interface PrismaAvailability {
-  id: string;
-  day: string;
-  allDay: boolean;
-  startTime: string | null;
-  endTime: string | null;
-}
-
-interface PrismaContract {
-  id: string;
-  contractType: string | null;
-  role: string;
-  hoursPerWeek: number | null;
-  status: string;
-  resignationDate: Date | null;
-  endDate: Date | null;
-  availability: PrismaAvailability[];
-}
-
-interface ContractAvailability {
-  id: string;
-  day: string;
-  allDay: boolean;
-  startTime: string;
-  endTime: string;
-}
-
-interface EditContract {
-  id: string;
-  contractType: string;
-  role: string;
-  hoursPerWeek: number | null;
-  status: string;
-  resignationDate: string;
-  endDate: string;
-  availability: ContractAvailability[];
-}
-
-export default async function ContractEditPage({ params }: PageProps) {
-  // Ici, params est déjà un objet synchronisé, pas besoin d'attendre
-  const { id } = params;
+// Nous ne déclarons pas explicitement la forme de props ici
+export default async function ContractEditPage(props: unknown) {
+  // Forçons l'assertion pour que props soit du type attendu par Next.js :
+  // Ici nous déclarons que props est un objet avec une propriété params qui est une promesse résolvant un objet { id: string }
+  const { params } = props as { params: Promise<{ id: string }> };
+  const { id } = await params;
   const employeeId = id;
 
   // Récupération du contrat via employeeId
+  interface PrismaAvailability {
+    id: string;
+    day: string;
+    allDay: boolean;
+    startTime: string | null;
+    endTime: string | null;
+  }
+  interface PrismaContract {
+    id: string;
+    contractType: string | null;
+    role: string;
+    hoursPerWeek: number | null;
+    status: string;
+    resignationDate: Date | null;
+    endDate: Date | null;
+    availability: PrismaAvailability[];
+  }
+  interface ContractAvailability {
+    id: string;
+    day: string;
+    allDay: boolean;
+    startTime: string;
+    endTime: string;
+  }
+  interface EditContract {
+    id: string;
+    contractType: string;
+    role: string;
+    hoursPerWeek: number | null;
+    status: string;
+    resignationDate: string;
+    endDate: string;
+    availability: ContractAvailability[];
+  }
+
   const contract: PrismaContract | null = await prisma.contract.findFirst({
     where: { employeeId },
     include: { availability: true },
