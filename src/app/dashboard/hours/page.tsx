@@ -1,10 +1,11 @@
 import { prisma } from '@/lib/prisma';
 import HoursGuidePageClient from './HoursGuidePageClient';
+import { parseISO } from 'date-fns';
 
-// Définition des types pour les données issues de la BDD
+// Mise à jour des interfaces pour refléter les types réels en DB
 interface Amendment {
-  startDate: string;
-  endDate?: string | null;
+  startDate: Date;
+  endDate?: Date | null;
   newHoursPerWeek: number | null;
 }
 
@@ -19,7 +20,6 @@ interface EmployeeDB {
   lastName: string;
   photoUrl?: string | null;
   contracts?: Contract[];
-  // Suppression de timeRecords car non utilisé et pour éviter le type any
 }
 
 export default async function HoursGuidePage() {
@@ -33,7 +33,6 @@ export default async function HoursGuidePage() {
           amendments: true,
         },
       },
-      // timeRecords: true, // Retiré s'il n'est pas nécessaire
     },
   })) as EmployeeDB[];
 
@@ -44,10 +43,9 @@ export default async function HoursGuidePage() {
 
     if (contract && contract.amendments && contract.amendments.length > 0) {
       const activeAmendment = contract.amendments.find((amendment: Amendment) => {
-        const startDate = new Date(amendment.startDate);
-        const endDate = amendment.endDate ? new Date(amendment.endDate) : null;
-        // L'avenant est actif si la date de planification est entre startDate et endDate (ou sans fin définie)
-        return planningDate >= startDate && (endDate ? planningDate <= endDate : true);
+        // Ici amendment.startDate est déjà de type Date
+        const endDate = amendment.endDate || null;
+        return planningDate >= amendment.startDate && (endDate ? planningDate <= endDate : true);
       });
       if (activeAmendment && activeAmendment.newHoursPerWeek !== null) {
         contractHours = activeAmendment.newHoursPerWeek;
