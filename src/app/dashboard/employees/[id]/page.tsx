@@ -1,6 +1,5 @@
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-// Désactivation des dynamicParams pour obtenir des params synchrones
 export const dynamicParams = false;
 
 import { prisma } from "@/lib/prisma";
@@ -11,9 +10,11 @@ import EmployeeProfileDisplay from "@/components/EmployeeProfileDisplay";
 import ContractDisplay from "./ContractDisplay";
 import DocumentsTab from "./DocumentsTab";
 
-export default async function EmployeeDetailPage(props: { params: { id: string } }) {
-  // Ici, params est un objet synchronisé, comme prévu
-  const { id } = props.params;
+// On définit les props de page en indiquant que params est une Promise
+export default async function EmployeeDetailPage(
+  props: { params: Promise<{ id: string }> }
+) {
+  const { id } = await props.params;
 
   // Récupérer l'employé avec ses contrats
   const employee = await prisma.employee.findUnique({
@@ -32,7 +33,7 @@ export default async function EmployeeDetailPage(props: { params: { id: string }
   // Sélectionner le premier contrat, ou undefined s'il n'y a aucun contrat
   const firstContract = employee.contracts?.[0];
 
-  // Préparer les données pour l'affichage en ajoutant la propriété "availabilities"
+  // Préparer les données pour l'affichage
   const editEmployee = {
     ...employee,
     dateOfBirth: employee.dateOfBirth
@@ -60,7 +61,9 @@ export default async function EmployeeDetailPage(props: { params: { id: string }
           hoursPerWeek: firstContract.hoursPerWeek,
           status: firstContract.status,
           resignationDate: firstContract.resignationDate
-            ? new Date(firstContract.resignationDate).toISOString().split("T")[0]
+            ? new Date(firstContract.resignationDate)
+                .toISOString()
+                .split("T")[0]
             : undefined,
           availability:
             firstContract.availability?.map((avail: {
@@ -80,7 +83,7 @@ export default async function EmployeeDetailPage(props: { params: { id: string }
       : undefined,
   };
 
-  // Pour DocumentsTab, nous faisons une assertion de type pour indiquer que employeeId est une string.
+  // Pour DocumentsTab, on précise que employeeId est une string.
   const DocumentsTabWithProps = DocumentsTab as React.FC<{ employeeId: string }>;
 
   return (
