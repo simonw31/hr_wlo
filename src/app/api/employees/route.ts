@@ -87,7 +87,7 @@ export async function POST(request: Request) {
         lastName: employee.lastName || "Non défini",
         matricule: employee.matricule ? parseInt(employee.matricule, 10) : null,
         dateOfBirth: birthDate,
-        sex: employee.sex || null,
+        sex: employee.sex ? (employee.sex as "Homme" | "Femme") : null,
         nationality: employee.nationality || null,
         address: employee.address || null,
         address2: employee.address2 || null,
