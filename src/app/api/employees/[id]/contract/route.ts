@@ -42,7 +42,6 @@ export async function POST(
       availability,
     } = body;
 
-    // Vérifier si un contrat existe déjà pour cet employé
     const existingContract = await prisma.contract.findFirst({
       where: { employeeId: id },
     });
@@ -71,7 +70,7 @@ export async function POST(
         availability: {
           create: Array.isArray(availability)
             ? availability.map((avail: AvailabilityInput) => ({
-                day: avail.day,
+                day: avail.day as "Lundi" | "Mardi" | "Mercredi" | "Jeudi" | "Vendredi" | "Samedi" | "Dimanche",
                 allDay: avail.allDay,
                 startTime: avail.allDay ? null : avail.startTime,
                 endTime: avail.allDay ? null : avail.endTime,
