@@ -1,6 +1,8 @@
-// app/api/contracts/[contractId]/route.ts
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+
+// Définition locale du type pour le statut du contrat
+type ContractStatus = "EN_CONTRAT" | "DEMISSION" | "AUTRE";
 
 interface AvailabilityInput {
   day: string;
@@ -22,7 +24,6 @@ export async function PUT(
   request: Request,
   context: unknown
 ): Promise<NextResponse> {
-  // Effectuer un cast pour extraire les paramètres
   const { params } = context as { params: { contractId: string } };
   try {
     const { contractId } = params;
@@ -35,7 +36,8 @@ export async function PUT(
         contractType,
         role,
         hoursPerWeek: hoursPerWeek ? parseInt(hoursPerWeek.toString(), 10) : null,
-        status,
+        // Conversion forcée du string en ContractStatus (localement défini)
+        status: status as ContractStatus,
         resignationDate: resignationDate ? new Date(resignationDate) : null,
         availability: {
           deleteMany: {},
