@@ -34,7 +34,6 @@ export async function PUT(
   request: Request,
   context: unknown
 ): Promise<NextResponse> {
-  // Extraction des paramètres
   const { params } = context as { params: RouteParams };
 
   try {
@@ -57,7 +56,7 @@ export async function PUT(
       availabilities,
     } = body;
 
-    // Récupérer l'employé avec ses contrats
+    // Récupérer l'employé avec ses contrats afin d'obtenir l'ID du contrat actif (on prend le premier)
     const employee = await prisma.employee.findUnique({
       where: { id: params.id },
       include: { contracts: { include: { availability: true } } },
@@ -72,7 +71,8 @@ export async function PUT(
       data: {
         firstName,
         lastName,
-        sex,
+        // Forçage du champ sex pour qu'il corresponde à l'enum "Sex"
+        sex: sex as "Homme" | "Femme",
         address,
         address2,
         postalCode,
@@ -95,7 +95,7 @@ export async function PUT(
         where: { id: contractId },
         data: {
           availability: {
-            deleteMany: {}, // Supprime toutes les disponibilités actuelles
+            deleteMany: {},
             create: Array.isArray(availabilities)
               ? availabilities.map((avail: AvailabilityInput) => ({
                   day: avail.day as "Lundi" | "Mardi" | "Mercredi" | "Jeudi" | "Vendredi" | "Samedi" | "Dimanche",
