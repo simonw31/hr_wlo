@@ -1,4 +1,7 @@
-// /app/dashboard/employees/[id]/page.tsx
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const dynamicParams = true;
+
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -7,17 +10,12 @@ import EmployeeProfileDisplay from "@/components/EmployeeProfileDisplay";
 import ContractDisplay from "./ContractDisplay";
 import DocumentsTab from "./DocumentsTab";
 
-// Définition d'un type pour la disponibilité
-interface Availability {
-  id: string;
-  day: string;
-  allDay: boolean;
-  startTime: string | null;
-  endTime: string | null;
-}
-
-export default async function EmployeeDetailPage(props: { params: { id: string } }) {
-  const id = props.params.id;
+// On définit ici la page sans imposer un type précis pour props
+export default async function EmployeeDetailPage(props: { params: unknown }) {
+  // On considère que props.params est soit un objet synchronisé,
+  // soit une promesse résolvant un objet { id: string }.
+  // Promise.resolve() garantira que nous obtenons bien une promesse.
+  const { id } = (await Promise.resolve(props.params)) as { id: string };
 
   // Récupérer l'employé avec ses contrats
   const employee = await prisma.employee.findUnique({
@@ -34,7 +32,7 @@ export default async function EmployeeDetailPage(props: { params: { id: string }
   }
 
   // Sélectionner le premier contrat, ou undefined s'il n'y a aucun contrat
-  const firstContract = employee.contracts && employee.contracts[0];
+  const firstContract = employee.contracts?.[0];
 
   // Préparer les données pour l'affichage en ajoutant la propriété "availabilities" au niveau racine
   const editEmployee = {
@@ -42,16 +40,20 @@ export default async function EmployeeDetailPage(props: { params: { id: string }
     dateOfBirth: employee.dateOfBirth
       ? new Date(employee.dateOfBirth).toISOString().split("T")[0]
       : "",
-    // Ajout de la propriété "availabilities" basée sur le premier contrat
     availabilities:
-      firstContract?.availability?.map((avail: Availability) => ({
+      firstContract?.availability?.map((avail: {
+        id: string;
+        day: string;
+        allDay: boolean;
+        startTime: string | null;
+        endTime: string | null;
+      }) => ({
         id: avail.id,
         day: String(avail.day),
         allDay: avail.allDay,
         startTime: avail.startTime ?? "",
         endTime: avail.endTime ?? "",
       })) || [],
-    // Mapping du contrat pour l'onglet Contrat
     contract: firstContract
       ? {
           id: firstContract.id,
@@ -63,7 +65,13 @@ export default async function EmployeeDetailPage(props: { params: { id: string }
             ? new Date(firstContract.resignationDate).toISOString().split("T")[0]
             : undefined,
           availability:
-            firstContract.availability?.map((avail: Availability) => ({
+            firstContract.availability?.map((avail: {
+              id: string;
+              day: string;
+              allDay: boolean;
+              startTime: string | null;
+              endTime: string | null;
+            }) => ({
               id: avail.id,
               day: String(avail.day),
               allDay: avail.allDay,
@@ -74,8 +82,7 @@ export default async function EmployeeDetailPage(props: { params: { id: string }
       : undefined,
   };
 
-  // Correction de l'erreur sur la prop "employeeId" :
-  // On cast DocumentsTab pour lui indiquer qu'il accepte une prop "employeeId" de type string.
+  // Pour DocumentsTab, nous faisons une assertion de type pour indiquer que employeeId est une string.
   const DocumentsTabWithProps = DocumentsTab as React.FC<{ employeeId: string }>;
 
   return (
