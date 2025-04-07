@@ -1,26 +1,19 @@
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const dynamicParams = true;
+// Désactivation des dynamicParams pour obtenir des params synchrones
+export const dynamicParams = false;
 
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Info, Briefcase, Folder } from "lucide-react";
 import EmployeeProfileDisplay from "@/components/EmployeeProfileDisplay";
 import ContractDisplay from "./ContractDisplay";
 import DocumentsTab from "./DocumentsTab";
-import { Info, Briefcase, Folder } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-
-// Nous recevons les props en tant qu'objet synchronisé,
-// puis nous forçons leur typage pour satisfaire la contrainte PageProps.
-export default async function EmployeeDetailPage(
-  rawProps: { params: { id: string } }
-) {
-  // Forcer rawProps en un type conforme à PageProps (où params est thenable)
-  const props = rawProps as unknown as { params: Promise<{ id: string }> };
-
-  // Attendre la résolution de params
-  const { id } = await props.params;
+export default async function EmployeeDetailPage(props: { params: { id: string } }) {
+  // Ici, params est un objet synchronisé, comme prévu
+  const { id } = props.params;
 
   // Récupérer l'employé avec ses contrats
   const employee = await prisma.employee.findUnique({
@@ -67,9 +60,7 @@ export default async function EmployeeDetailPage(
           hoursPerWeek: firstContract.hoursPerWeek,
           status: firstContract.status,
           resignationDate: firstContract.resignationDate
-            ? new Date(firstContract.resignationDate)
-                .toISOString()
-                .split("T")[0]
+            ? new Date(firstContract.resignationDate).toISOString().split("T")[0]
             : undefined,
           availability:
             firstContract.availability?.map((avail: {
@@ -89,12 +80,11 @@ export default async function EmployeeDetailPage(
       : undefined,
   };
 
-  // On fait une assertion de type pour DocumentsTab pour préciser que employeeId est une string.
+  // Pour DocumentsTab, nous faisons une assertion de type pour indiquer que employeeId est une string.
   const DocumentsTabWithProps = DocumentsTab as React.FC<{ employeeId: string }>;
 
   return (
     <div className="p-6">
-      {/* Votre affichage avec Tabs */}
       <Tabs defaultValue="informations" className="space-y-6">
         <TabsList>
           <TabsTrigger value="informations">
